@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>TÁCTICA INGENIERÍA — Panel</title>
+  <link rel="icon" href="/static/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#080C10;
+      --surface:#0D1117;
+      --surface2:#111827;
+      --surface3:#1A2535;
+      --border:#1E2D3D;
+      --border-mid:#253547;
+      --cyan:#22D3EE;
+      --cyan-dim:rgba(34,211,238,.14);
+      --cyan-border:rgba(34,211,238,.3);
+      --text:#E2E8F0;
+      --text-muted:#8B9BAE;
+      --text-dim:#4A6580;
+      --green:#34D399;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.4);
+      --shadow:0 6px 24px rgba(0,0,0,.5);
+      --font:'DM Sans',ui-sans-serif,system-ui,sans-serif;
+      --display:'Syne',ui-sans-serif,system-ui,sans-serif;
+      --mono:'JetBrains Mono',monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden}
+    .shell{height:100%;display:grid;grid-template-columns:204px 1fr}
+
+    /* SIDEBAR */
+    .sidebar{
+      background:var(--surface);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;box-shadow:var(--shadow);
+      position:relative;z-index:10;
+    }
+    .sb-top{padding:16px 14px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand-logo{
+      width:34px;height:34px;border-radius:9px;
+      background:linear-gradient(135deg,var(--cyan),rgba(34,211,238,.6));
+      display:grid;place-items:center;font-weight:900;font-size:12px;color:#03060A;flex-shrink:0;
+      box-shadow:0 2px 12px rgba(34,211,238,.35);
+    }
+    .brand-name{font-size:13px;font-weight:800;line-height:1.1;color:var(--text);font-family:var(--display)}
+    .brand-sub{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-top:2px}
+
+    .status-line{
+      display:flex;align-items:center;gap:6px;margin-top:10px;
+      font-size:10px;color:var(--text-dim);font-family:var(--mono);
+    }
+    .status-dot{
+      width:6px;height:6px;border-radius:50%;background:var(--green);
+      box-shadow:0 0 6px var(--green);flex-shrink:0;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+    /* NAV */
+    .nav{display:flex;flex-direction:column;gap:2px;padding:12px 8px;flex:1}
+    .nav-section{
+      font-size:9px;font-weight:700;color:var(--text-dim);letter-spacing:1.4px;text-transform:uppercase;
+      padding:8px 8px 4px;margin-top:4px;font-family:var(--mono);
+    }
+    .nav-btn{
+      display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;
+      border:1px solid transparent;background:none;color:var(--text-muted);cursor:pointer;
+      font-family:var(--font);font-size:13px;font-weight:500;text-align:left;width:100%;
+      transition:.15s background,.15s color,.15s border-color;position:relative;
+    }
+    .nav-btn:hover{background:var(--surface3);color:var(--text)}
+    .nav-btn.active{
+      background:var(--cyan-dim);color:var(--cyan);font-weight:600;
+      border-color:var(--cyan-border);
+    }
+    .nav-icon{
+      width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
+      font-size:13px;background:var(--surface3);flex-shrink:0;border:1px solid var(--border);
+    }
+    .nav-btn.active .nav-icon{
+      background:var(--cyan-dim);border-color:var(--cyan-border);
+    }
+
+    /* SIDEBAR BOTTOM */
+    .sb-bot{
+      padding:12px 14px;border-top:1px solid var(--border);
+      font-size:10px;color:var(--text-dim);line-height:1.5;font-family:var(--mono);
+    }
+
+    /* MAIN */
+    .main{display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+
+    /* TOP STRIP */
+    .topstrip{
+      height:42px;border-bottom:1px solid var(--border);background:var(--surface);
+      display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;
+      box-shadow:var(--shadow-sm);
+    }
+    .ts-breadcrumb{
+      display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);font-family:var(--mono);
+    }
+    .ts-breadcrumb span{color:var(--text);font-weight:600}
+    .ts-sep{color:var(--border-mid)}
+    .ts-actions{display:flex;align-items:center;gap:6px}
+    .ts-btn{
+      width:28px;height:28px;border-radius:7px;border:1px solid var(--border);
+      background:var(--surface2);display:grid;place-items:center;
+      font-size:12px;cursor:pointer;color:var(--text-muted);transition:.15s background,.15s color;
+    }
+    .ts-btn:hover{background:var(--surface3);color:var(--cyan)}
+
+    /* IFRAME */
+    .frame-wrap{flex:1;min-height:0;position:relative}
+    iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sb-top">
+        <div class="brand">
+          <div class="brand-logo">TI</div>
+          <div>
+            <div class="brand-name">TÁCTICA ING.</div>
+            <div class="brand-sub">Panel unificado</div>
+          </div>
+        </div>
+        <div class="status-line">
+          <div class="status-dot"></div>
+          <span>Sistema activo · GPT-4o</span>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <div class="nav-section">Principal</div>
+        <button class="nav-btn active" data-src="/static/index.html" data-label="Inicio">
+          <div class="nav-icon">🏠</div>
+          <span>Inicio</span>
+        </button>
+
+        <div class="nav-section">Módulos</div>
+        <button class="nav-btn" data-src="/static/viewer.html" data-label="Mediciones">
+          <div class="nav-icon">📐</div>
+          <span>Mediciones</span>
+        </button>
+        <button class="nav-btn" data-src="/static/structural.html" data-label="Estructural">
+          <div class="nav-icon">🏗️</div>
+          <span>Estructural</span>
+        </button>
+        <button class="nav-btn" data-src="/static/budget_advanced.html" data-label="Presupuestos">
+          <div class="nav-icon">💰</div>
+          <span>Presupuestos</span>
+        </button>
+        <button class="nav-btn" data-src="/static/projects.html" data-label="Proyectos">
+          <div class="nav-icon">📁</div>
+          <span>Proyectos</span>
+        </button>
+        <button class="nav-btn" id="navSwagger" data-src="/docs" data-label="API Docs" style="display:none">
+          <div class="nav-icon">🧪</div>
+          <span>API Docs</span>
+        </button>
+      </nav>
+
+      <div class="sb-bot">
+        Home unificado — sin 20 pestañas peleando por RAM 😅
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topstrip">
+        <div class="ts-breadcrumb">
+          TÁCTICA ING. <span class="ts-sep">/</span> <span id="pageLabel">Inicio</span>
+        </div>
+        <div class="ts-actions">
+          <div class="ts-btn" title="Configuración">⚙️</div>
+          <div class="ts-btn" title="Recargar" onclick="document.getElementById('appFrame').contentWindow.location.reload()">↺</div>
+        </div>
+      </div>
+      <div class="frame-wrap">
+        <iframe id="appFrame" src="/static/index.html" title="TÁCTICA INGENIERÍA App"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    const frame = document.getElementById('appFrame');
+    const label = document.getElementById('pageLabel');
+    const params = new URLSearchParams(location.search);
+    const dev = params.get("dev")==="1" || localStorage.getItem("tactica_devMode")==="1";
+    const swaggerBtn = document.getElementById("navSwagger");
+    if(swaggerBtn && dev) swaggerBtn.style.display="";
+
+    nav.addEventListener('click', e=>{
+      const btn = e.target.closest('button[data-src]');
+      if(!btn) return;
+      nav.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      frame.src = btn.dataset.src;
+      if(label && btn.dataset.label) label.textContent = btn.dataset.label;
+    });
+  </script>
+</body>
+</html>

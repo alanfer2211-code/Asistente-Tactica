@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>TÁCTICA INGENIERÍA — Control de Costos</title>
+  <link rel="icon" href="/static/favicon.ico"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --blue:#0066CC;--bl:#E8F2FF;--bm:#C8DFF7;
+      --orange:#FF6B35;--ol:#FFF1EC;--om:rgba(255,107,53,.3);
+      --green:#10B981;--gl:#ECFDF5;--gm:rgba(16,185,129,.3);
+      --warn:#F59E0B;--danger:#EF4444;
+      --g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;
+      --g400:#9CA3AF;--g500:#6B7280;--g700:#374151;--g900:#111827;
+      --white:#FFFFFF;
+      --sh:0 4px 12px rgba(0,0,0,.07);--shs:0 1px 3px rgba(0,0,0,.08);
+      --r:12px;--font:'Inter',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{min-height:100%;background:var(--g50);color:var(--g900);font-family:var(--font);font-size:14px}
+    a{color:inherit;text-decoration:none}
+    .page{display:flex;flex-direction:column;min-height:100vh}
+    /* TOAST */
+    #toast{position:fixed;right:16px;top:16px;z-index:9999;padding:10px 16px;border-radius:10px;border:1px solid var(--g200);background:rgba(255,255,255,.97);color:var(--g900);box-shadow:0 8px 24px rgba(0,0,0,.12);max-width:340px;font-size:12.5px;font-weight:500;pointer-events:none;opacity:0;transform:translateY(-8px);transition:.2s ease;border-left:3px solid var(--green)}
+    #toast.show{opacity:1;transform:translateY(0)}
+    /* TOPNAV */
+    .topnav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--g200);box-shadow:var(--shs);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;}
+    .nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px}
+    .nav-logo{width:30px;height:30px;border-radius:7px;background:var(--blue);display:grid;place-items:center;font-weight:900;font-size:11px;color:#fff}
+    .nav-links{display:flex;gap:2px}
+    .nav-link{padding:5px 11px;border-radius:7px;font-size:13px;font-weight:500;color:var(--g500);transition:.12s background,.12s color}
+    .nav-link:hover{background:var(--g100);color:var(--g900)}
+    .nav-link.active{background:var(--bl);color:var(--blue);font-weight:600}
+    .nav-right{display:flex;gap:8px;align-items:center}
+    .ai-badge{font-size:10.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--bm);background:var(--bl);color:var(--blue);font-weight:700;white-space:nowrap;font-family:var(--mono)}
+    .ai-badge.demo{border-color:rgba(239,68,68,.3);background:#FEF2F2;color:var(--danger)}
+    select{background:var(--white);border:1px solid var(--g200);color:var(--g700);padding:6px 10px;border-radius:8px;outline:none;font-size:12.5px;font-family:var(--font);box-shadow:var(--shs)}
+    .btn{padding:8px 14px;border-radius:8px;border:1px solid var(--g200);background:var(--white);color:var(--g700);cursor:pointer;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px;user-select:none;white-space:nowrap;font-family:var(--font);box-shadow:var(--shs);transition:.12s transform,.12s background;}
+    .btn:hover{transform:translateY(-1px);background:var(--g50)}
+    .btn.pri{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 8px rgba(0,102,204,.25)}
+    .btn.pri:hover{background:#0055B3}
+    .btn.grn{background:var(--green);color:#fff;border-color:var(--green)}
+    .btn.orn{background:var(--orange);color:#fff;border-color:var(--orange)}
+    .btn.dng{background:#FEF2F2;color:var(--danger);border-color:rgba(239,68,68,.3)}
+    .btn.obl{background:var(--bl);color:var(--blue);border-color:var(--bm);font-weight:700}
+    .btn.ogrn{background:var(--gl);color:var(--green);border-color:var(--gm);font-weight:700}
+    /* CONTENT */
+    .content{max-width:1200px;margin:0 auto;padding:18px 20px 32px;display:flex;flex-direction:column;gap:14px;flex:1}
+    /* HEADER STRIP */
+    .hstrip{background:var(--white);border:1px solid var(--g200);border-radius:var(--r);padding:14px 18px;box-shadow:var(--shs);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .hs-left h2{font-size:16px;font-weight:700;margin-bottom:2px}
+    .hs-left span{font-size:12px;color:var(--g500);font-family:var(--mono)}
+    /* ACTION STRIP */
+    .action-strip{background:var(--white);border:1px solid var(--g200);border-radius:10px;padding:10px 14px;box-shadow:var(--shs);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    /* MAIN GRID */
+    .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+    /* UPLOAD CARD */
+    .up-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
+    .up-head{padding:12px 16px;border-bottom:1px solid var(--g200);background:var(--g50);display:flex;align-items:center;justify-content:space-between;}
+    .up-title{font-size:12px;font-weight:700;color:#4B5563;display:flex;align-items:center;gap:7px}
+    .up-title::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--blue)}
+    .up-body{padding:14px;display:flex;flex-direction:column;gap:10px}
+    /* KPI CHIPS */
+    .kpi-row{display:flex;gap:8px;flex-wrap:wrap}
+    .kpi{padding:7px 12px;border-radius:8px;border:1px solid var(--g200);background:var(--g50);min-width:80px}
+    .kpi-label{font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .kpi-val{font-size:14px;font-weight:700;font-family:var(--mono);color:var(--g900)}
+    /* FILE BUTTONS ROW */
+    .file-btns{display:flex;gap:8px;flex-wrap:wrap}
+    /* DROP ZONE */
+    #drop{border:2px dashed var(--g200);border-radius:10px;padding:26px 16px;text-align:center;color:var(--g400);font-size:13px;transition:.15s border-color,.15s background;cursor:pointer;}
+    #drop:hover,#drop.drag{border-color:var(--blue);background:var(--bl);color:var(--blue)}
+    .drop-icon-l{font-size:30px;margin-bottom:8px;display:block;opacity:.4}
+    .drop-hint{font-size:11.5px;margin-top:4px;color:var(--g400);font-family:var(--mono)}
+    /* FILE INFO */
+    .file-info{display:flex;gap:10px;flex-wrap:wrap}
+    .finfo{padding:6px 10px;border-radius:8px;border:1px solid var(--g200);background:var(--g50);font-size:11.5px;display:flex;flex-direction:column}
+    .finfo-label{font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .finfo-val{font-weight:700;font-family:var(--mono);color:var(--g900)}
+    /* EXCEL PREVIEW */
+    #excelPreviewWrap{display:none;margin-top:4px}
+    .tbl-wrap{overflow:auto;max-height:200px;border-radius:8px;border:1px solid var(--g200)}
+    .tbl-wrap table{width:100%;border-collapse:collapse;font-size:11px}
+    #excelPreview thead th{background:var(--g100);color:#4B5563;font-weight:700;padding:6px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--g200)}
+    #excelPreview tbody td{padding:5px 10px;border-bottom:1px solid var(--g100);color:var(--g700);white-space:nowrap;font-family:var(--mono);font-size:11px}
+    #excelPreview tbody tr:last-child td{border-bottom:none}
+    #excelPreview tbody tr:hover td{background:var(--bl)}
+    /* CHAT CARD */
+    .chat-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;}
+    .chat-head{padding:12px 16px;border-bottom:1px solid var(--g200);background:var(--g50);display:flex;align-items:center;justify-content:space-between;}
+    .chat-head-title{font-size:13px;font-weight:700;color:#1F2937;display:flex;align-items:center;gap:8px}
+    /* MSGS */
+    #msgs{min-height:240px;max-height:360px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--g50);flex:1}
+    .msg{max-width:90%;padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.55;white-space:pre-wrap}
+    .msg .who{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;opacity:.7}
+    .msg:not(.me){background:var(--white);border:1px solid var(--g200);border-left:3px solid var(--orange);color:var(--g700)}
+    .msg.me{background:var(--bl);border:1px solid var(--bm);border-left:3px solid var(--blue);color:var(--blue);margin-left:auto}
+    /* COMPOSER */
+    .composer{display:flex;gap:8px;align-items:flex-end;padding:12px 14px;border-top:1px solid var(--g200)}
+    #message{flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--g200);background:var(--white);color:var(--g900);outline:none;font-size:13px;font-family:var(--font);resize:vertical;min-height:40px;max-height:80px}
+    #message:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,102,204,.1)}
+    .chat-hint{font-size:11px;color:var(--g400);padding:0 14px 10px;font-family:var(--mono)}
+    /* PROJ LABEL */
+    #projLabel{font-size:11.5px;color:var(--g500);font-family:var(--mono)}
+    .foot{text-align:center;font-size:12px;color:var(--g400);padding:12px;border-top:1px solid var(--g200);background:var(--white)}
+  </style>
+  <style>
+    /* ===== NAVY DARK THEME - TÁCTICA INGENIERÍA ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --dk-bg: #080B18;
+      --dk-surface: #0D1120;
+      --dk-surface2: #111827;
+      --dk-surface3: #151E2E;
+      --dk-border: rgba(99,120,180,.2);
+      --dk-border2: rgba(99,120,180,.35);
+      --dk-glow-purple: rgba(120,80,220,.18);
+      --dk-glow-cyan: rgba(34,193,195,.12);
+      --dk-glow-green: rgba(16,185,129,.12);
+      --dk-text: #E2E8F0;
+      --dk-muted: #8B9BAE;
+      --dk-dim: #4A6580;
+    }
+
+    html, body {
+      background: var(--dk-bg) !important;
+      background-image:
+        radial-gradient(ellipse 900px 600px at 15% 5%, rgba(100,60,200,.12) 0%, transparent 55%),
+        radial-gradient(ellipse 700px 500px at 85% 10%, rgba(34,193,195,.07) 0%, transparent 50%),
+        radial-gradient(ellipse 600px 800px at 50% 100%, rgba(60,80,180,.08) 0%, transparent 55%) !important;
+      background-attachment: fixed !important;
+      color: var(--dk-text) !important;
+    }
+
+    /* TOPBAR / NAV */
+    .topbar, .topnav {
+      background: rgba(8,11,24,.88) !important;
+      backdrop-filter: blur(16px) !important;
+      border-bottom-color: var(--dk-border) !important;
+      box-shadow: 0 1px 0 rgba(99,120,180,.15) !important;
+    }
+    .brand-info strong { color: #E2E8F0 !important; }
+    .brand-info span { color: var(--dk-muted) !important; }
+    .brand-logo, .nav-logo {
+      background: linear-gradient(135deg,#7C3AED,#5B21B6) !important;
+      box-shadow: 0 2px 12px rgba(124,58,237,.45) !important;
+    }
+
+    /* NAV LINKS */
+    .nav a, .nav-link {
+      color: var(--dk-muted) !important;
+      border-color: transparent !important;
+    }
+    .nav a:hover, .nav-link:hover {
+      background: rgba(99,120,180,.12) !important;
+      color: var(--dk-text) !important;
+    }
+    .nav a.active, .nav-link.active {
+      background: rgba(124,58,237,.2) !important;
+      color: #A78BFA !important;
+      border-color: rgba(124,58,237,.4) !important;
+      font-weight: 700 !important;
+    }
+
+    /* ICONBAR */
+    .iconbar {
+      background: rgba(8,11,24,.95) !important;
+      border-right-color: var(--dk-border) !important;
+    }
+    .icon {
+      background: var(--dk-surface2) !important;
+      border-color: var(--dk-border) !important;
+      color: var(--dk-muted) !important;
+    }
+    .icon:hover {
+      background: rgba(124,58,237,.2) !important;
+      border-color: rgba(124,58,237,.45) !important;
+      color: #A78BFA !important;
+    }
+    .icon.active {
+      background: rgba(124,58,237,.25) !important;
+      border-color: rgba(124,58,237,.6) !important;
+      color: #C4B5FD !important;
+    }
+
+    /* TOOLBAR / ACTION STRIP */
+    .toolbar, .action-strip {
+      background: rgba(13,17,32,.8) !important;
+      border-color: var(--dk-border) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+
+    /* ALL CARDS / PANELS */
+    .panel-card, .right, .cmd, .hstrip, .main-card,
+    .upload-card, .chat-card, .section-card,
+    [class*="-card"], [class*="-panel"] {
+      background: rgba(13,17,32,.7) !important;
+      border-color: var(--dk-border) !important;
+      backdrop-filter: blur(8px) !important;
+      color: var(--dk-text) !important;
+    }
+
+    /* RIGHT PANEL */
+    .right {
+      background: rgba(8,11,24,.9) !important;
+      border-left-color: var(--dk-border) !important;
+    }
+
+    /* CMD BAR */
+    .cmd {
+      border-top-color: var(--dk-border) !important;
+      background: rgba(8,11,24,.95) !important;
+    }
+    .cmd input {
+      background: rgba(13,17,32,.9) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-text) !important;
+    }
+    .cmd input:focus {
+      border-color: rgba(124,58,237,.6) !important;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.15) !important;
+    }
+    .cmd input::placeholder { color: var(--dk-dim) !important; }
+
+    /* MAIN VIEWER AREA */
+    .main { background: transparent !important; }
+    .viewer {
+      background: #050810 !important;
+      border-color: var(--dk-border) !important;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,.5), 0 0 0 1px rgba(99,120,180,.1) !important;
+    }
+
+    /* PANEL HEADER */
+    .panel-header { border-bottom-color: var(--dk-border) !important; }
+    .panel-title { color: var(--dk-muted) !important; }
+
+    /* BUTTONS - Base */
+    .btn {
+      background: rgba(13,17,32,.8) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-muted) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3) !important;
+    }
+    .btn:hover:not(:disabled) {
+      background: rgba(20,25,45,.9) !important;
+      color: var(--dk-text) !important;
+      border-color: rgba(99,120,180,.5) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    /* COLORED BUTTONS - matching the mockup */
+    .btn.primary, .btn[class*="primary"] {
+      background: linear-gradient(135deg,#2563EB,#1D4ED8) !important;
+      border-color: #3B82F6 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(37,99,235,.45) !important;
+    }
+    .btn.primary:hover { background: linear-gradient(135deg,#1D4ED8,#1E40AF) !important; box-shadow: 0 4px 20px rgba(37,99,235,.55) !important; }
+
+    .btn.green, .btn.grn {
+      background: linear-gradient(135deg,#059669,#047857) !important;
+      border-color: #10B981 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(5,150,105,.45) !important;
+    }
+    .btn.green:hover, .btn.grn:hover { background: linear-gradient(135deg,#047857,#065F46) !important; }
+
+    .btn.orange, .btn.orn {
+      background: linear-gradient(135deg,#D97706,#B45309) !important;
+      border-color: #F59E0B !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(217,119,6,.45) !important;
+    }
+    .btn.orange:hover, .btn.orn:hover { background: linear-gradient(135deg,#B45309,#92400E) !important; }
+
+    .btn.purple {
+      background: linear-gradient(135deg,#7C3AED,#6D28D9) !important;
+      border-color: #8B5CF6 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(124,58,237,.45) !important;
+    }
+    .btn.purple:hover { background: linear-gradient(135deg,#6D28D9,#5B21B6) !important; }
+
+    .btn.dng {
+      background: linear-gradient(135deg,#DC2626,#B91C1C) !important;
+      border-color: #EF4444 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(220,38,38,.4) !important;
+    }
+    .btn.dng:hover { background: linear-gradient(135deg,#B91C1C,#991B1B) !important; }
+
+    .btn.outline-orange, .btn.oorn {
+      background: rgba(217,119,6,.15) !important;
+      border-color: rgba(245,158,11,.4) !important;
+      color: #FCD34D !important;
+    }
+    .btn.outline-green, .btn.ogrn {
+      background: rgba(5,150,105,.15) !important;
+      border-color: rgba(16,185,129,.4) !important;
+      color: #34D399 !important;
+    }
+    .btn.outline-purple, .btn.obl, .btn.pri {
+      background: rgba(124,58,237,.15) !important;
+      border-color: rgba(139,92,246,.4) !important;
+      color: #A78BFA !important;
+    }
+
+    /* AI BADGE */
+    .ai-badge {
+      background: rgba(124,58,237,.2) !important;
+      border-color: rgba(139,92,246,.4) !important;
+      color: #A78BFA !important;
+    }
+
+    /* MEASUREMENT ITEMS */
+    .item {
+      background: rgba(13,17,32,.6) !important;
+      border-color: var(--dk-border) !important;
+    }
+    .item:hover {
+      background: rgba(124,58,237,.15) !important;
+      border-color: rgba(139,92,246,.4) !important;
+    }
+
+    /* BUBBLES / AI LOG */
+    .bubble {
+      background: rgba(13,17,32,.7) !important;
+      border-color: var(--dk-border) !important;
+      color: var(--dk-text) !important;
+    }
+    .bubble.ai { border-left-color: #7C3AED !important; }
+    .bubble.user { border-left-color: #2563EB !important; }
+
+    /* INPUTS / SELECTS / TEXTAREAS */
+    input, select, textarea {
+      background: rgba(13,17,32,.85) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-text) !important;
+    }
+    input::placeholder, textarea::placeholder { color: var(--dk-dim) !important; }
+    select option { background: #0D1120; color: #E2E8F0; }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(124,58,237,.6) !important;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.12) !important;
+      outline: none !important;
+    }
+
+    /* DROP ZONES */
+    .drop-zone, [id*="drop"], [class*="drop"] {
+      background: rgba(13,17,32,.5) !important;
+      border-color: rgba(99,120,180,.25) !important;
+    }
+
+    /* PILLS / BADGES */
+    .pill {
+      background: rgba(13,17,32,.8) !important;
+      border-color: var(--dk-border) !important;
+      color: var(--dk-muted) !important;
+    }
+
+    /* TABLES */
+    th {
+      background: rgba(8,11,24,.8) !important;
+      color: var(--dk-muted) !important;
+      border-color: var(--dk-border) !important;
+    }
+    td { border-color: var(--dk-border) !important; color: var(--dk-text) !important; }
+    tr:nth-child(even) { background: rgba(13,17,32,.4) !important; }
+    tr:hover { background: rgba(124,58,237,.08) !important; }
+
+    /* HUD CHIPS */
+    .hud-chip {
+      background: rgba(8,11,24,.85) !important;
+      border-color: rgba(99,120,180,.2) !important;
+      color: rgba(226,232,240,.7) !important;
+    }
+
+    /* TOASTS */
+    .toast, #toast {
+      background: rgba(13,17,32,.96) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-text) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+
+    /* DIVIDERS */
+    .divider { background: var(--dk-border) !important; }
+
+    /* TEXT COLORS */
+    h1,h2,h3,h4,h5,h6 { color: var(--dk-text) !important; }
+    .tlabel { color: var(--dk-dim) !important; }
+
+    /* SCROLLBARS */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(8,11,24,.5); }
+    ::-webkit-scrollbar-thumb { background: rgba(99,120,180,.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,.5); }
+
+    /* ===== END NAVY DARK THEME ===== */
+  </style>
+
+  <style>
+    /* ===== DARK CARDS & PANELS FIX ===== */
+
+    /* Override CSS variables to dark values */
+    :root {
+      --white: #0D1120 !important;
+      --gray-50: #080B18 !important;
+      --gray-100: #111827 !important;
+      --gray-200: rgba(99,120,180,.22) !important;
+      --gray-400: #4A6580 !important;
+      --gray-500: #8B9BAE !important;
+      --gray-600: #9CA8BB !important;
+      --gray-700: #C8D3E0 !important;
+      --gray-900: #E2E8F0 !important;
+      --g50: #080B18 !important;
+      --g100: #111827 !important;
+      --g200: rgba(99,120,180,.22) !important;
+      --g400: #4A6580 !important;
+      --g500: #8B9BAE !important;
+      --g700: #C8D3E0 !important;
+      --g900: #E2E8F0 !important;
+      --blue-light: rgba(37,99,235,.15) !important;
+      --blue-mid: rgba(59,130,246,.35) !important;
+      --bl: rgba(37,99,235,.15) !important;
+      --bm: rgba(59,130,246,.35) !important;
+      --orange-light: rgba(217,119,6,.12) !important;
+      --orange-mid: rgba(245,158,11,.3) !important;
+      --ol: rgba(217,119,6,.12) !important;
+      --om: rgba(245,158,11,.3) !important;
+      --green-light: rgba(5,150,105,.12) !important;
+      --green-mid: rgba(16,185,129,.3) !important;
+      --gl: rgba(5,150,105,.12) !important;
+      --gm: rgba(16,185,129,.3) !important;
+      --purple-light: rgba(124,58,237,.12) !important;
+      --sh: 0 4px 16px rgba(0,0,0,.5) !important;
+      --shs: 0 1px 4px rgba(0,0,0,.4) !important;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,.4) !important;
+      --shadow: 0 4px 16px rgba(0,0,0,.5) !important;
+      --shadow-md: 0 8px 24px rgba(0,0,0,.6) !important;
+    }
+
+    /* Force all text to be light */
+    body, body * {
+      color: #E2E8F0;
+    }
+
+    /* Specific overrides for elements that might still show white */
+    .bubble, .ai-bubble, [class*="bubble"] {
+      background: #111827 !important;
+      border-color: rgba(99,120,180,.25) !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Chat areas */
+    [class*="chat"], [id*="chat"] {
+      background: #0D1120 !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Upload zones - dashed border areas */
+    [class*="upload"], [id*="upload"],
+    [class*="drop"], [id*="drop"] {
+      background: rgba(8,11,24,.7) !important;
+      border-color: rgba(99,120,180,.3) !important;
+      color: #8B9BAE !important;
+    }
+
+    /* Stats / info pills inside cards */
+    [class*="stat"], [class*="info-"] {
+      background: #111827 !important;
+      border-color: rgba(99,120,180,.2) !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Section headers inside cards */
+    .hstrip, [class*="hstrip"], [class*="header-strip"] {
+      background: #0D1120 !important;
+      border-color: rgba(99,120,180,.2) !important;
+    }
+
+    /* Instruction / helper text */
+    [class*="hint"], [class*="help"], [class*="tip"], pre, code {
+      background: rgba(8,11,24,.6) !important;
+      color: #8B9BAE !important;
+    }
+
+    /* Selection / project dropdowns */
+    .project-select, [class*="proj-"], [id*="proj"] {
+      background: #111827 !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Bold text should be white/bright */
+    strong, b, h1, h2, h3, h4, h5, h6,
+    [class*="-title"], [class*="-name"],
+    .brand-info strong {
+      color: #F0F4F8 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Muted / secondary text */
+    [class*="-sub"], [class*="-desc"], [class*="-hint"],
+    [class*="-meta"], [class*="-label"], small, .brand-info span {
+      color: #8B9BAE !important;
+    }
+
+    /* Borders globally */
+    [class*="-card"], [class*="-panel"], [class*="-section"],
+    [class*="-zone"], [class*="-strip"], [class*="-wrap"] {
+      border-color: rgba(99,120,180,.2) !important;
+    }
+
+    /* ===== END FIX ===== */
+  </style>
+
+</head>
+<body>
+  <!-- TOAST (ID must match JS) -->
+  <div id="toast">Operación completada</div>
+
+  <div class="page">
+    <!-- NAV -->
+    <nav class="topnav">
+      <div class="nav-brand">
+        <div class="nav-logo">TI</div>
+        <span>TÁCTICA INGENIERÍA</span>
+      </div>
+      <div class="nav-links">
+        <a class="nav-link" href="/static/index.html">Inicio</a>
+        <a class="nav-link" href="/static/viewer.html">📐 Medición</a>
+        <a class="nav-link" href="/static/structural.html">🏗️ Estructural</a>
+        <a class="nav-link active" href="/static/budget_advanced.html">💰 Presupuestos</a>
+        <a class="nav-link" href="/static/projects.html">📁 Proyectos</a>
+      </div>
+      <div class="nav-right">
+        <span class="ai-badge" id="aiBadge">⚡ GPT-4o</span>
+        <select id="projectSelect" style="max-width:200px"></select>
+        <button class="btn pri" style="font-size:12px;padding:6px 12px" id="btnNewProject">➕ Proyecto</button>
+      </div>
+    </nav>
+
+    <div class="content">
+      <!-- HEADER -->
+      <div class="hstrip">
+        <div class="hs-left">
+          <h2>💰 Control de Costos y Avance</h2>
+          <span id="projLabel">Sin proyecto activo</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="ai-badge" id="chatAiBadge">GPT-4o Vision</span>
+        </div>
+      </div>
+
+      <!-- ACTION STRIP -->
+      <div class="action-strip">
+        <button class="btn pri" id="btnPickExcel">📊 Cargar Excel</button>
+        <input id="excelInput" type="file" accept=".xlsx,.xls,.csv" hidden/>
+        <button class="btn obl" id="btnPickPdf">📄 Cargar PDF</button>
+        <input id="pdfInput" type="file" accept=".pdf" hidden/>
+        <button class="btn orn" id="btnGenReport">🤖 Informe IA</button>
+        <button class="btn dng" id="btnClear">✕ Limpiar</button>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="main-grid">
+        <!-- LEFT: UPLOAD + KPIs -->
+        <div class="up-card">
+          <div class="up-head">
+            <div class="up-title">Zona de carga</div>
+          </div>
+          <div class="up-body">
+            <!-- KPIs -->
+            <div class="kpi-row">
+              <div class="kpi">
+                <div class="kpi-label">Archivo Excel</div>
+                <div class="kpi-val" id="excelName">—</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Filas</div>
+                <div class="kpi-val" id="rows">—</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">PDF</div>
+                <div class="kpi-val" id="pdfName">—</div>
+              </div>
+            </div>
+
+            <!-- DROP ZONE -->
+            <div id="drop">
+              <span class="drop-icon-l">📂</span>
+              <div><b>Arrastra un Excel o PDF de presupuesto aquí</b></div>
+              <div style="margin-top:4px;color:var(--g400)">o usa los botones de arriba</div>
+              <div class="drop-hint">Excel → tablas · PDF → análisis GPT-4o Vision</div>
+            </div>
+
+            <!-- EXCEL PREVIEW (id must match JS renderPreview function) -->
+            <div id="excelPreviewWrap">
+              <div style="font-size:11.5px;font-weight:700;color:var(--g500);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Vista previa</div>
+              <div class="tbl-wrap">
+                <div id="excelPreview"></div>
+              </div>
+            </div>
+
+            <div style="font-size:11.5px;color:var(--g400);line-height:1.5;font-family:var(--mono)">
+              Flujo: Excel → <code>/api/v1/budget/upload</code> · PDF → chat GPT-4o Vision.<br/>
+              Pregunta sobre avance, inconsistencias, totales o genera un informe ejecutivo.
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: CHAT -->
+        <div class="chat-card">
+          <div class="chat-head">
+            <div class="chat-head-title">💬 Chat IA — Presupuesto</div>
+            <span class="ai-badge" id="chatAiBadge2">GPT-4o</span>
+          </div>
+          <div id="msgs"></div>
+          <div class="composer">
+            <textarea id="message" placeholder="Ej: resume riesgos, inconsistencias, analiza avance, genera informe ejecutivo..." rows="2"></textarea>
+            <button class="btn orn" id="btnSend">✈️ Enviar</button>
+          </div>
+          <div class="chat-hint">Tip: carga el archivo y pregunta "analiza el archivo adjunto" para análisis completo con GPT-4o.</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot">⚡ Del plano al dato, sin drama · TÁCTICA INGENIERÍA v2.0 · 2026</div>
+  </div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const STORAGE_KEY = "TACTICA_ACTIVE_PROJECT";
+  const API = "/api/v1";
+  const state = {
+    excel:null, pdf:null, excelData:null,
+    projects:[], activeProjectId:localStorage.getItem(STORAGE_KEY)||"", activeProject:null,
+  };
+
+  function toast(text, ms=2800){
+    const el=$("toast");el.textContent=text;el.classList.add("show");
+    clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),ms);
+  }
+  function escHtml(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function addMsg(who, text, me=false){
+    const d=document.createElement("div");d.className="msg"+(me?" me":"");
+    d.innerHTML=`<div class="who">${escHtml(who)}</div><div>${escHtml(text)}</div>`;
+    $("msgs").appendChild(d);$("msgs").scrollTop=$("msgs").scrollHeight;
+  }
+
+  async function checkHealth(){
+    try{
+      const d=await fetch(`${API}/health`).then(r=>r.json());
+      [$("aiBadge"),$("chatAiBadge")].forEach(b=>{
+        if(!b) return;
+        if(d.simulation){b.textContent="🔴 Demo";b.classList.add("demo");}
+        else{b.textContent="⚡ GPT-4o";b.classList.remove("demo");}
+      });
+      if(d.simulation) toast("IA en modo demo. Agrega OPENAI_API_KEY para GPT-4o real.",4000);
+    }catch(e){}
+  }
+
+  async function loadProjects(){
+    try{
+      const d=await fetch(`${API}/projects`).then(r=>r.json());
+      state.projects=d.projects||[];
+      if(state.activeProjectId)
+        state.activeProject=state.projects.find(p=>p.id===state.activeProjectId)||null;
+      if(!state.activeProject&&state.projects.length){
+        state.activeProject=state.projects[0];
+        state.activeProjectId=state.activeProject.id;
+        localStorage.setItem(STORAGE_KEY,state.activeProjectId);
+      }
+      const sel=$("projectSelect");sel.innerHTML="";
+      if(!state.projects.length){
+        const o=document.createElement("option");o.value="";o.textContent="Sin proyectos (crea uno)";sel.appendChild(o);
+        state.activeProject=null;state.activeProjectId="";
+      } else {
+        for(const p of state.projects){
+          const o=document.createElement("option");o.value=p.id;
+          o.textContent=`${p.name}${p.location?" — "+p.location:""}`;
+          if(p.id===state.activeProjectId) o.selected=true;
+          sel.appendChild(o);
+        }
+      }
+      $("projLabel").textContent=state.activeProject?state.activeProject.name:"Sin proyecto";
+    }catch(e){}
+  }
+
+  async function createProject(){
+    const name=prompt("📁 Nombre del proyecto:");if(!name) return;
+    const location=prompt("📍 Ubicación:")||"";
+    const currency=(prompt("💱 Moneda (COP/USD/EUR):","COP")||"COP").toUpperCase();
+    const fd=new FormData();
+    fd.append("name",name);fd.append("location",location);fd.append("currency",currency);
+    const r=await fetch(`${API}/projects`,{method:"POST",body:fd});
+    if(!r.ok){toast("No se pudo crear.");return;}
+    const p=await r.json();
+    state.activeProjectId=p.id;localStorage.setItem(STORAGE_KEY,p.id);
+    await loadProjects();toast("Proyecto creado ✅");
+  }
+
+  $("projectSelect").addEventListener("change",e=>{
+    state.activeProjectId=e.target.value||"";
+    localStorage.setItem(STORAGE_KEY,state.activeProjectId);
+    state.activeProject=state.projects.find(p=>p.id===state.activeProjectId)||null;
+    $("projLabel").textContent=state.activeProject?.name||"Sin proyecto";
+  });
+  $("btnNewProject").addEventListener("click",createProject);
+
+  async function uploadExcel(file){
+    state.excel=file;$("excelName").textContent=file.name;
+    const fd=new FormData();
+    fd.append("tipo","planned");fd.append("file",file,file.name);
+    // ✅ FIX: solo enviar project_id si existe (no vacío)
+    if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+    toast("Procesando Excel…");
+    try{
+      const r=await fetch(`${API}/budget/upload`,{method:"POST",body:fd,headers:{accept:"application/json"}});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok){addMsg("Sistema",`Error ${r.status}: ${d.detail||"No se pudo procesar el Excel."}`);return;}
+      state.excelData=d.data||[];
+      $("rows").textContent=d.rows??"—";
+      addMsg("IA",`Excel cargado ✅ — ${d.rows??0} filas · ${(d.columns||[]).length} columnas\nColumnas: ${(d.columns||[]).slice(0,8).join(", ")}${(d.columns||[]).length>8?"…":""}\n\n¿Qué quieres analizar? (avance, inconsistencias, totales…)`);
+      renderPreview(d.columns||[],d.data||[]);
+      toast("Excel cargado ✅");
+    }catch(err){addMsg("Sistema","Error de red: "+err.message);}
+  }
+
+  function renderPreview(cols, rows){
+    if(!cols.length){$("excelPreviewWrap").style.display="none";return;}
+    $("excelPreviewWrap").style.display="block";
+    const vc=cols.slice(0,7),pr=rows.slice(0,7);
+    let h=`<table><thead><tr>${vc.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>`;
+    for(const r of pr) h+=`<tr>${vc.map(c=>`<td>${r[c]??""}</td>`).join("")}</tr>`;
+    $("excelPreview").innerHTML=h+"</tbody></table>";
+  }
+
+  async function uploadPdf(file){
+    state.pdf=file;$("pdfName").textContent=file.name;
+    addMsg("Sistema",`PDF listo ✅ — ${file.name}\nEnvía una pregunta para analizarlo con GPT-4o Vision.`);
+    toast("PDF listo.");
+  }
+
+  $("btnGenReport").addEventListener("click",async()=>{
+    if(!state.excelData?.length&&!state.pdf&&!state.excel){toast("Carga primero un archivo.");return;}
+    addMsg("Sistema","Generando informe ejecutivo con GPT-4o…");
+    const msg="Analiza este presupuesto de construcción y genera un informe ejecutivo con:\n1. Resumen de totales y capítulos principales\n2. Top 5 items de mayor costo\n3. Posibles inconsistencias o alertas\n4. Recomendaciones de optimización";
+    const fd=new FormData();
+    fd.append("message",msg);fd.append("mode","budget");
+    if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+    if(state.pdf) fd.append("file",state.pdf,state.pdf.name);
+    else if(state.excel) fd.append("file",state.excel,state.excel.name);
+    try{
+      const r=await fetch(`${API}/chat`,{method:"POST",body:fd});
+      const d=await r.json();
+      if(!r.ok){addMsg("Sistema",`Error ${r.status}: ${d.detail||d.response||""}`);return;}
+      addMsg("IA",d.response||"Sin respuesta");toast("Informe generado ✅");
+    }catch(err){addMsg("Sistema","Error: "+err.message);}
+  });
+
+  $("btnClear").addEventListener("click",()=>{
+    state.excel=null;state.pdf=null;state.excelData=null;
+    $("excelName").textContent="—";$("pdfName").textContent="—";$("rows").textContent="—";
+    $("excelPreviewWrap").style.display="none";toast("Limpiado.");
+  });
+
+  $("btnPickExcel").addEventListener("click",()=>$("excelInput").click());
+  $("btnPickPdf").addEventListener("click",()=>$("pdfInput").click());
+  $("excelInput").addEventListener("change",e=>{const f=e.target.files?.[0];if(f) uploadExcel(f);});
+  $("pdfInput").addEventListener("change",e=>{const f=e.target.files?.[0];if(f) uploadPdf(f);});
+
+  const drop=$("drop");
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag");}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag");}));
+  drop.addEventListener("drop",e=>{
+    const f=e.dataTransfer.files?.[0];if(!f) return;
+    const n=(f.name||"").toLowerCase();
+    if(n.endsWith(".pdf")||f.type==="application/pdf") uploadPdf(f);
+    else uploadExcel(f);
+  });
+
+  async function send(){
+    const msg=$("message").value.trim();
+    if(!msg&&!state.pdf&&!state.excel){toast("Escribe algo o carga un archivo.");return;}
+    addMsg("Tú",msg||"(archivo adjunto)",true);$("message").value="";
+    const fd=new FormData();
+    fd.append("message",msg||"Analiza el documento de presupuesto adjunto.");
+    fd.append("mode","budget");
+    if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+    if(state.pdf) fd.append("file",state.pdf,state.pdf.name);
+    else if(state.excel) fd.append("file",state.excel,state.excel.name);
+    toast("Enviando a GPT-4o…");
+    try{
+      const r=await fetch(`${API}/chat`,{method:"POST",body:fd});
+      const ct=(r.headers.get("content-type")||"").toLowerCase();
+      const d=ct.includes("json")?await r.json():{response:await r.text()};
+      if(!r.ok){addMsg("Sistema",`Error ${r.status}: ${d?.detail||d?.response||""}`);return;}
+      addMsg("IA",d.response||JSON.stringify(d));
+    }catch(err){addMsg("Sistema","Error de red: "+err.message);}
+  }
+
+  $("btnSend").addEventListener("click",send);
+  $("message").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+
+  checkHealth();loadProjects();
+  addMsg("IA","Listo ✅ Sube un Excel (.xlsx/.csv) o PDF de presupuesto para analizar con GPT-4o Vision.\n\nEjemplos:\n• \"Resume el presupuesto por capítulos\"\n• \"¿Qué partidas tienen inconsistencias?\"\n• \"Genera un informe ejecutivo de costos\"");
+})();
+</script>
+</body>
+</html>

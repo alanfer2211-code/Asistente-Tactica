@@ -1,0 +1,265 @@
+/* =====================================================
+   TACTICA INGENIERIA - SISTEMA PROFESIONAL
+   Estilos CSS Completos v3.0 (adaptado a la UI)
+   ===================================================== */
+
+/* ===== VARIABLES CSS (THEMES: LIGHT / DARK) ===== */
+:root {
+  /* Paleta principal */
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #60a5fa;
+  --secondary: #6b7280;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+
+  /* Grises (valores neutros para tema claro) */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Backgrounds (light defaults) */
+  --bg: var(--gray-50);
+  --panel-bg: #ffffff;
+  --card-bg: #ffffff;
+  --muted: var(--gray-500);
+  --text: #0b1220;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 12px rgba(2,6,23,0.07);
+  --shadow-lg: 0 12px 30px rgba(2,6,23,0.12);
+  --shadow-xl: 0 20px 50px rgba(2,6,23,0.14);
+
+  /* Borders & radius */
+  --border-radius: 10px;
+  --border-radius-sm: 6px;
+  --border: 1px solid rgba(15,23,42,0.06);
+
+  /* Transitions */
+  --transition: 180ms ease;
+
+  /* Tactica logo overrides (puedes cambiar desde tema) */
+  --tactica-grad-start: #2bf2b5;
+  --tactica-grad-end:   #15c9b0;
+  --tactica-foreground: #06110d;
+}
+
+/* DARK THEME (se recomienda añadir class "theme-dark" al body) */
+body.theme-dark {
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --primary-light: #93c5fd;
+  --secondary: #9ca3af;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+  --info: #38bdf8;
+
+  --gray-50: #0b1220;
+  --gray-100: rgba(255,255,255,0.02);
+  --gray-200: rgba(255,255,255,0.03);
+  --gray-300: rgba(255,255,255,0.06);
+  --gray-400: rgba(255,255,255,0.12);
+  --gray-500: rgba(255,255,255,0.35);
+  --gray-600: rgba(255,255,255,0.28);
+  --gray-700: rgba(255,255,255,0.20);
+  --gray-800: rgba(255,255,255,0.12);
+  --gray-900: #e6eef9;
+
+  --bg: #05060a;
+  --panel-bg: #0b0f18;
+  --card-bg: rgba(255,255,255,0.02);
+  --muted: rgba(255,255,255,0.55);
+  --text: #e6eef9;
+
+  --border: 1px solid rgba(255,255,255,0.04);
+
+  --tactica-grad-start: #7ef3d0;
+  --tactica-grad-end:   #2dd7bf;
+  --tactica-foreground: #edf9f6;
+}
+
+/* ===== RESET & BASE ===== */
+* { box-sizing: border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial; background:var(--bg); color:var(--text);}
+
+/* Focus visible (accesibilidad) */
+:focus { outline: none; }
+:focus-visible { outline: 3px solid rgba(59,130,246,0.24); outline-offset: 2px; border-radius: 6px; }
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.app { display:flex; min-height:100vh; gap:20px; align-items:stretch; }
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--panel-bg);
+  border-right: var(--border);
+  padding: 20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  box-shadow: var(--shadow);
+  flex-shrink:0;
+}
+.logo { text-align:center; margin-bottom:6px; }
+.logo i { font-size:34px; color:var(--primary); display:inline-block; margin-bottom:6px; }
+.logo h1 { font-size:18px; margin:0; color:var(--text); }
+.subtitle { font-size:12px; color:var(--muted); margin-top:6px; }
+
+/* Navigation */
+.sidebar-nav { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px;border-radius:8px;text-decoration:none;color:var(--muted);
+  border: 1px solid transparent; transition:var(--transition); font-weight:600;
+}
+.nav-item i{ width:20px; text-align:center; color:var(--primary); }
+.nav-item:hover { background: linear-gradient(90deg, rgba(59,130,246,0.06), rgba(59,130,246,0.03)); color:var(--text); border-color: rgba(59,130,246,0.06); }
+.nav-item.active { background: linear-gradient(90deg, var(--primary-dark), var(--primary)); color:#000; font-weight:700; border:none; }
+
+/* Sidebar footer */
+.sidebar-footer { margin-top:auto; display:flex; align-items:center; gap:10px; color:var(--muted); }
+
+/* Main content */
+.main-content { flex:1; padding: 28px; min-width:0; }
+
+/* Header area */
+.library-header { border-radius:12px; padding:20px; background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(59,130,246,0.02)); margin-bottom:20px; }
+.library-header h1 { font-size:20px; color:var(--primary); display:flex; gap:10px; align-items:center; margin-bottom:6px; }
+.library-header p { color:var(--muted); margin:0; }
+
+/* Search */
+.search-bar { max-width:720px; margin-top:12px; position:relative; }
+.search-input {
+  width:100%; padding:12px 44px 12px 14px; border-radius:999px; border:1px solid var(--border);
+  background: transparent; color:var(--text); font-size:14px;
+}
+.search-input::placeholder { color:var(--muted); }
+.search-icon { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted); }
+
+/* Filters bar */
+.filters-bar {
+  display:flex; align-items:center; gap:12px; padding:12px; border-radius:10px; background:var(--card-bg); border:var(--border); margin-bottom:16px; flex-wrap:wrap;
+}
+.filter-group { display:flex; align-items:center; gap:8px; }
+.filter-label { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:8px; }
+.filter-select { padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text); }
+
+/* Category tabs */
+.category-tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:16px; }
+.category-tab {
+  padding:8px 14px; border-radius:999px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; white-space:nowrap; font-weight:700;
+}
+.category-tab.active { background: linear-gradient(90deg, var(--primary-dark), var(--primary)); color:#000; border:none; }
+
+/* Stats bar */
+.stats-bar { display:flex; gap:12px; margin-bottom:16px; }
+.stat-item { flex:1; padding:14px; border-radius:10px; background:var(--card-bg); border:var(--border); text-align:center; }
+.stat-value { font-size:22px; font-weight:800; color:var(--primary); }
+.stat-label { color:var(--muted); font-size:13px; }
+
+/* Elements grid */
+.elements-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:18px; margin-bottom:28px; }
+.element-card {
+  background:var(--card-bg); border-radius:12px; padding:16px; border:var(--border); transition:var(--transition); cursor:pointer; display:flex; flex-direction:column; gap:10px;
+}
+.element-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-lg); border-color: rgba(59,130,246,0.08); }
+
+.element-header { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+.element-title { font-size:16px; margin:0; color:var(--text); font-weight:800; }
+.element-key { font-family:monospace; background:var(--gray-100); color:var(--muted); padding:4px 8px; border-radius:6px; font-size:12px; }
+.element-aliases { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.alias-tag { background:var(--gray-100); color:var(--muted); padding:6px 10px; border-radius:999px; font-size:12px; }
+
+.element-icon { width:48px; height:48px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:6px; }
+
+/* category color classes (utilizadas en markup) */
+.category-structure .element-icon { background: rgba(59,130,246,0.08); color: var(--primary); }
+.category-foundation .element-icon { background: rgba(245,158,11,0.06); color: var(--warning); }
+.category-finishing .element-icon { background: rgba(16,185,129,0.06); color: var(--success); }
+.category-installations .element-icon { background: rgba(239,68,68,0.06); color: var(--danger); }
+.category-earthwork .element-icon { background: rgba(139,87,42,0.06); color: #8b572a; }
+.category-roads .element-icon { background: rgba(107,114,128,0.06); color: #6b7280; }
+
+/* Measures, requirements, formulas, notes */
+.element-measures { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+.measure-item { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:13px; }
+.element-requirements { background:var(--gray-100); padding:10px; border-radius:8px; color:var(--muted); }
+.element-formulas { background: rgba(14,60,120,0.04); padding:10px; border-left: 3px solid var(--primary); border-radius:6px; }
+
+/* No-results */
+.no-results { text-align:center; padding:40px 20px; color:var(--muted); }
+.no-results i { font-size:48px; margin-bottom:8px; opacity:0.22; }
+
+/* Export button (flotante) */
+.export-library-btn {
+  position: fixed; right: 20px; bottom: 20px; background: linear-gradient(45deg, var(--primary-dark), var(--primary)); color: #000; padding:12px 18px; border-radius:999px; border:none; cursor:pointer; box-shadow:var(--shadow-xl); z-index:999;
+}
+.export-library-btn:hover { transform:translateY(-4px); }
+
+/* ===== BUTTONS & FORMS ===== */
+.btn { padding:10px 14px; border-radius:8px; border: none; cursor:pointer; transition:var(--transition); font-weight:700; }
+.btn-primary { background: linear-gradient(90deg, var(--primary-dark), var(--primary)); color:#000; box-shadow:var(--shadow); }
+.btn-primary:hover { transform:translateY(-2px); }
+.btn-secondary { background: transparent; border: 1px solid var(--border); color:var(--muted); }
+.btn-sm { padding:6px 10px; font-size:13px; }
+
+/* Inputs */
+input, select, textarea { background: transparent; color:var(--text); border:1px solid var(--border); padding:10px; border-radius:8px; font-size:14px; }
+input::placeholder, textarea::placeholder { color:var(--muted); }
+
+/* Form field error */
+.field-error { color: var(--danger); font-size:12px; margin-top:6px; }
+
+/* ===== MODAL ===== */
+.modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(2,6,23,0.6); z-index:9999; padding:20px; }
+.modal.active { display:flex; }
+.modal-content { width:100%; max-width:900px; background:var(--panel-bg); color:var(--text); border-radius:12px; padding:18px; border:var(--border); box-shadow:var(--shadow-lg); }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.modal-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.modal-close { background:transparent; border:1px solid transparent; color:var(--muted); padding:8px; border-radius:8px; cursor:pointer; }
+
+/* ===== TOASTS ===== */
+#toast-container { position: fixed; right: 20px; bottom: 20px; z-index:99999; display:flex; flex-direction:column; gap:8px; }
+.toast { display:flex; gap:10px; align-items:center; padding:10px 14px; border-radius:8px; color:#000; font-weight:700; transform: translateY(8px); opacity:0; transition: var(--transition); }
+.toast.show { transform: translateY(0); opacity:1; }
+.toast-info { background: var(--info); }
+.toast-success { background: var(--success); }
+.toast-error { background: var(--danger); }
+.toast-warning { background: var(--warning); }
+
+/* ===== GLOBAL LOADER ===== */
+#global-loader { position: fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.25); z-index:99999; }
+#global-loader .spinner { width:48px; height:48px; border-radius:50%; border:5px solid rgba(255,255,255,0.08); border-top-color:var(--primary); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== UTILIDADES ===== */
+.hidden { display:none !important; }
+.text-muted { color:var(--muted); }
+.center { text-align:center; }
+.row { display:flex; gap:12px; align-items:center; }
+.col { flex:1; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .sidebar { display:none; }
+  .app { padding:0; }
+  .elements-grid { grid-template-columns: 1fr; }
+  .export-library-btn { right:12px; bottom:12px; padding:10px 12px; }
+}
+
+/* ===== TACTICA LOGO VARIABLES (por si lo usamos inline) ===== */
+:root { --tactica-grad-start: var(--tactica-grad-start, #2bf2b5); --tactica-grad-end: var(--tactica-grad-end, #15c9b0); --tactica-foreground: var(--tactica-foreground, #06110d); }
+
+/* ===== FIN ===== */

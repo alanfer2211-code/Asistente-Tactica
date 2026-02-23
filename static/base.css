@@ -1,0 +1,314 @@
+/*
+ * ════════════════════════════════════════════════════════════════
+ *  TACTICA INGENIERIA — base.css  v2.0
+ *  Tokens globales · Dark theme · Responsive · Accesibilidad
+ *  Colocar en: static/assets/base.css
+ *  Incluir en TODOS los HTML dentro de <head>:
+ *    <link rel="stylesheet" href="/static/assets/base.css">
+ * ════════════════════════════════════════════════════════════════
+ */
+
+/* ── 1. Tokens de diseno ─────────────────────────────────────── */
+:root {
+  --bg:             #0b0f14;
+  --surface:        #111827;
+  --surface2:       #1a2232;
+  --surface3:       #222d40;
+  --text:           #e5e7eb;
+  --text-muted:     #9ca3af;
+  --text-dim:       #6b7280;
+  --border:         rgba(255,255,255,.10);
+  --border-strong:  rgba(255,255,255,.18);
+  --primary:        #22c1c3;
+  --primary-soft:   rgba(34,193,195,.15);
+  --primary-border: rgba(34,193,195,.40);
+  --primary-dark:   #179a9c;
+  --blue:           #0066CC;
+  --blue-light:     rgba(0,102,204,.15);
+  --blue-border:    rgba(0,102,204,.40);
+  --green:          #10b981;
+  --green-soft:     rgba(16,185,129,.15);
+  --orange:         #ff6b35;
+  --orange-soft:    rgba(255,107,53,.15);
+  --warn:           #f59e0b;
+  --warn-soft:      rgba(245,158,11,.15);
+  --danger:         #ef4444;
+  --danger-soft:    rgba(239,68,68,.15);
+  --font:  'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:  'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,.35);
+  --shadow:    0 4px 16px rgba(0,0,0,.45);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.55);
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --t: .14s ease;
+}
+
+/* ── 2. Reset y base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html, body {
+  margin: 0; padding: 0; min-height: 100%;
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+img, svg, iframe { display: block; max-width: 100%; }
+button, input, select, textarea { font-family: inherit; font-size: inherit; }
+
+/* ── 3. Accesibilidad — foco visible ─────────────────────────── */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
+  border-color: var(--primary) !important;
+}
+
+/* ── 4. Scrollbars ───────────────────────────────────────────── */
+::-webkit-scrollbar            { width: 5px; height: 5px; }
+::-webkit-scrollbar-track      { background: transparent; }
+::-webkit-scrollbar-thumb      { background: rgba(255,255,255,.13); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,.22); }
+
+/* ── 5. Navegacion horizontal responsive ─────────────────────── */
+.tac-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+}
+.tac-nav::-webkit-scrollbar { display: none; }
+.tac-nav a, .tac-nav button {
+  flex-shrink: 0;
+  padding: 6px 11px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--t), color var(--t), border-color var(--t);
+}
+.tac-nav a:hover, .tac-nav button:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.tac-nav a.active, .tac-nav button.active {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: var(--primary-border);
+  font-weight: 600;
+}
+
+/* ── 6. Boton base ───────────────────────────────────────────── */
+.tac-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: background var(--t), border-color var(--t), transform var(--t), box-shadow var(--t);
+}
+.tac-btn:hover { background: var(--surface3); border-color: var(--border-strong); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.tac-btn:active { transform: translateY(0); }
+.tac-btn.primary { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+.tac-btn.primary:hover { background: rgba(34,193,195,.25); border-color: var(--primary); }
+.tac-btn.danger  { background: var(--danger-soft); border-color: rgba(239,68,68,.35); color: var(--danger); }
+.tac-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── 7. Inputs accesibles ────────────────────────────────────── */
+.tac-field { display: flex; flex-direction: column; gap: 5px; }
+.tac-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+.tac-input, .tac-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  outline: none;
+  transition: border-color var(--t);
+}
+.tac-input::placeholder { color: var(--text-dim); }
+.tac-input:hover, .tac-select:hover { border-color: var(--border-strong); }
+
+/* ── 8. Toast ────────────────────────────────────────────────── */
+.tac-toast-host {
+  position: fixed;
+  right: 14px;
+  top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+}
+.tac-toast {
+  padding: 10px 16px;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: rgba(17,24,39,.94);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity .2s ease, transform .2s ease;
+  max-width: 360px;
+  pointer-events: none;
+}
+.tac-toast.show  { opacity: 1; transform: translateX(0); }
+.tac-toast.ok    { border-left: 3px solid var(--green); }
+.tac-toast.warn  { border-left: 3px solid var(--warn); }
+.tac-toast.err   { border-left: 3px solid var(--danger); }
+.tac-toast.info  { border-left: 3px solid var(--primary); }
+
+/* ── 9. Card ─────────────────────────────────────────────────── */
+.tac-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── 10. Badge / pill ────────────────────────────────────────── */
+.tac-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-muted);
+}
+.tac-badge.primary { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+.tac-badge.green   { background: var(--green-soft);   border-color: rgba(16,185,129,.35);  color: var(--green); }
+.tac-badge.warn    { background: var(--warn-soft);     border-color: rgba(245,158,11,.35);  color: var(--warn); }
+.tac-badge.danger  { background: var(--danger-soft);   border-color: rgba(239,68,68,.35);   color: var(--danger); }
+
+/* ── 11. Barra de progreso ───────────────────────────────────── */
+.tac-bar { height: 8px; border-radius: 999px; background: var(--surface2); overflow: hidden; border: 1px solid var(--border); }
+.tac-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), rgba(34,193,195,.45));
+  transition: width .6s ease;
+}
+
+/* ── 12. Responsive helpers ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
+  /* Nav con mas espacio para scroll horizontal en movil */
+  .tac-nav { padding-bottom: 4px; }
+}
+@media (min-width: 641px) {
+  .show-mobile { display: none !important; }
+}
+/* Sidebar dashboard: colapsa en pantallas estrechas */
+@media (max-width: 700px) {
+  .shell { grid-template-columns: 1fr !important; }
+  .sidebar { display: none !important; }
+  .sidebar.open {
+    display: flex !important;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    width: 240px;
+    right: auto;
+  }
+}
+
+/* ── 13. Animaciones ─────────────────────────────────────────── */
+@keyframes tac-fadeup {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tac-fadein { animation: tac-fadeup .25s ease both; }
+
+/* ── Compatibilidad con variables legacy (módulos structural/budget) ─ */
+:root {
+  /* Mapeo de variables blancas/grises al tema oscuro */
+  --white:   #111827;          /* era #FFFFFF → fondo oscuro */
+  --g50:     #0f1724;          /* era #F9FAFB → fondo más oscuro */
+  --g100:    #1a2232;          /* era #F3F4F6 */
+  --g200:    rgba(255,255,255,.10);  /* era #E5E7EB → borde oscuro */
+  --g400:    #9ca3af;
+  --g500:    #6b7280;
+  --g600:    #9ca3af;          /* era gris medio */
+  --g700:    #d1d5db;          /* era gris oscuro → aclarar para dark */
+  --g900:    #f3f4f6;          /* era casi negro → casi blanco para dark */
+
+  /* Mapeo de colores primarios legacy */
+  --blue:           #3b82f6;
+  --blue-light:     rgba(59,130,246,.12);
+  --blue-mid:       rgba(59,130,246,.30);
+  --orange:         #f97316;
+  --orange-light:   rgba(249,115,22,.12);
+  --orange-mid:     rgba(249,115,22,.25);
+  --green:          #10b981;
+  --green-light:    rgba(16,185,129,.12);
+  --green-mid:      rgba(16,185,129,.25);
+
+  /* Sombras en dark mode */
+  --sh:  0 4px 16px rgba(0,0,0,.45);
+  --shs: 0 1px 4px rgba(0,0,0,.35);
+}
+
+/* Forzar colores oscuros en elementos con fondo blanco legacy */
+select {
+  color-scheme: dark;
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+input[type="text"],
+input[type="number"],
+input[type="search"],
+input[type="email"],
+textarea {
+  color-scheme: dark;
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+input::placeholder { color: var(--text-dim) !important; }
+

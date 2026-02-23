@@ -1,0 +1,85 @@
+:root{
+  /* Core */
+  --bg-0:#0b0b0b;
+  --bg-1:#0f1114;
+  --surface:#121418;
+  --surface-2:#161a20;
+  --border:#232831;
+  --text:#e8eaed;
+  --muted:#a3a8b3;
+
+  /* Brand */
+  --blue:#2f7ddf;
+  --blue-light:#1a2740;
+  --blue-mid:#2a3854;
+  --orange:#ff7a45;
+  --orange-light:#2a1c14;
+  --orange-mid:rgba(255,122,69,.35);
+  --green:#22c58a;
+  --green-light:#13241f;
+  --green-mid:rgba(34,197,138,.35);
+  --purple:#a078ff;
+  --purple-light:#241a3a;
+  --warn:#f5b24a;
+  --danger:#ff5f5f;
+
+  /* Neutral scale (mapped to existing vars) */
+  --gray-50:#0f1114;
+  --gray-100:#14181e;
+  --gray-200:#1d232c;
+  --gray-300:#28313c;
+  --gray-400:#9aa1ad;
+  --gray-500:#b3b9c4;
+  --gray-700:#e4e7ec;
+  --gray-900:#f6f7fb;
+  --white:#121418;
+
+  /* Alternate naming (budget/structural) */
+  --g50:var(--gray-50);
+  --g100:var(--gray-100);
+  --g200:var(--gray-200);
+  --g400:var(--gray-400);
+  --g500:var(--gray-500);
+  --g700:var(--gray-700);
+  --g900:var(--gray-900);
+  --bl:var(--blue-light);
+  --bm:var(--blue-mid);
+  --ol:var(--orange-light);
+  --om:var(--orange-mid);
+  --gl:var(--green-light);
+  --gm:var(--green-mid);
+
+  /* Projects page */
+  --bg:var(--bg-0);
+  --surface2:var(--surface-2);
+  --primary:#2ad1c9;
+  --primary-soft:rgba(42,209,201,.16);
+  --primary-border:rgba(42,209,201,.45);
+
+  /* Shadows & radius */
+  --shadow-sm:0 1px 3px rgba(0,0,0,.45);
+  --shadow:0 8px 24px rgba(0,0,0,.45);
+  --shadow-md:0 12px 36px rgba(0,0,0,.55);
+}
+
+html,body{
+  background:var(--bg-0);
+  color:var(--text);
+}
+
+body{
+  font-synthesis-weight:none;
+  text-rendering:optimizeLegibility;
+}
+
+a{color:inherit}
+
+:focus-visible{
+  outline:2px solid var(--blue);
+  outline-offset:2px;
+}
+
+::selection{
+  background:rgba(47,125,223,.35);
+  color:var(--text);
+}

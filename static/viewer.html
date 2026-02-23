@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TÁCTICA INGENIERÍA — Medición y Calibración</title>
+  <link rel="icon" href="/static/favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    :root{
+      --blue:#0066CC;--blue-light:#E8F2FF;--blue-mid:#C8DFF7;
+      --orange:#FF6B35;--orange-light:#FFF1EC;--orange-mid:rgba(255,107,53,.3);
+      --green:#10B981;--green-light:#ECFDF5;--green-mid:rgba(16,185,129,.3);
+      --purple:#7C3AED;--purple-light:#F5F3FF;
+      --warn:#F59E0B;--danger:#EF4444;
+      --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+      --gray-400:#9CA3AF;--gray-500:#6B7280;--gray-700:#374151;--gray-900:#111827;
+      --white:#FFFFFF;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow:0 4px 12px rgba(0,0,0,.07);
+      --shadow-md:0 8px 24px rgba(0,0,0,.1);
+      --r:10px;--font:'Inter',ui-sans-serif,system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;background:var(--gray-50);color:var(--gray-900);font-family:var(--font);font-size:14px}
+    a{color:inherit;text-decoration:none}
+    /* SHELL */
+    .shell{height:100%;display:grid;
+      grid-template-columns:52px 1fr 300px;
+      grid-template-rows:52px 1fr 56px;
+      grid-template-areas:"iconbar topbar topbar""iconbar main right""iconbar cmd right";
+    }
+    /* ICONBAR */
+    .iconbar{
+      grid-area:iconbar;border-right:1px solid var(--gray-200);
+      background:var(--white);display:flex;flex-direction:column;align-items:center;
+      padding:10px 6px;gap:4px;
+    }
+    .icon{
+      width:38px;height:38px;border:1px solid var(--gray-200);border-radius:10px;
+      background:var(--white);display:grid;place-items:center;
+      color:var(--gray-400);cursor:pointer;font-size:16px;
+      transition:.12s background,.12s border-color,.12s color;
+    }
+    .icon:hover{border-color:var(--blue-mid);background:var(--blue-light);color:var(--blue)}
+    .icon.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+    /* TOPBAR */
+    .topbar{
+      grid-area:topbar;border-bottom:1px solid var(--gray-200);background:var(--white);
+      display:flex;align-items:center;justify-content:space-between;padding:0 14px;gap:10px;min-width:0;
+      box-shadow:var(--shadow-sm);
+    }
+    .brand{display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:0}
+    .brand-logo{
+      width:30px;height:30px;border-radius:7px;background:var(--blue);
+      display:grid;place-items:center;font-weight:900;font-size:11px;color:#fff;flex-shrink:0;
+    }
+    .brand-info{display:flex;flex-direction:column;line-height:1.2}
+    .brand-info strong{font-size:13px;font-weight:700;white-space:nowrap}
+    .brand-info span{font-size:11px;color:var(--gray-400);font-family:var(--mono)}
+    .nav{display:flex;gap:2px;align-items:center;overflow:auto;scrollbar-width:none}
+    .nav::-webkit-scrollbar{display:none}
+    .nav a{
+      padding:5px 10px;border-radius:7px;font-size:13px;font-weight:500;color:var(--gray-500);
+      white-space:nowrap;transition:.12s background,.12s color;border:1px solid transparent;
+    }
+    .nav a:hover{background:var(--gray-100);color:var(--gray-900)}
+    .nav a.active{background:var(--blue-light);color:var(--blue);border-color:var(--blue-mid);font-weight:600}
+    .top-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+    select{
+      background:var(--white);border:1px solid var(--gray-200);color:var(--gray-700);
+      padding:6px 10px;border-radius:8px;outline:none;font-size:12.5px;font-family:var(--font);
+      box-shadow:var(--shadow-sm);
+    }
+    /* BUTTONS */
+    .btn{
+      padding:7px 12px;border-radius:8px;border:1px solid var(--gray-200);
+      background:var(--white);color:var(--gray-700);cursor:pointer;font-weight:600;
+      font-size:12px;display:inline-flex;align-items:center;gap:6px;user-select:none;
+      white-space:nowrap;font-family:var(--font);box-shadow:var(--shadow-sm);
+      transition:.12s transform,.12s background,.12s border-color,.12s box-shadow;
+    }
+    .btn:hover{transform:translateY(-1px);background:var(--gray-50);box-shadow:var(--shadow)}
+    .btn.primary{border-color:var(--blue);background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(0,102,204,.25)}
+    .btn.primary:hover{background:#0055B3;box-shadow:0 4px 16px rgba(0,102,204,.35)}
+    .btn.green{border-color:var(--green);background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,.25)}
+    .btn.green:hover{background:#0DA271}
+    .btn.orange{border-color:var(--orange);background:var(--orange);color:#fff;box-shadow:0 2px 8px rgba(255,107,53,.25)}
+    .btn.orange:hover{background:#E85C27}
+    .btn.purple{border-color:var(--purple);background:var(--purple);color:#fff}
+    .btn.warn{border-color:var(--warn);background:var(--warn-light,#FFFBEB);color:var(--warn)}
+    .btn.outline-orange{border-color:var(--orange-mid);background:var(--orange-light);color:var(--orange);font-weight:700}
+    .btn.outline-green{border-color:var(--green-mid);background:var(--green-light);color:var(--green);font-weight:700}
+    .btn.outline-purple{border-color:rgba(124,58,237,.3);background:var(--purple-light);color:var(--purple);font-weight:700}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+    /* AI BADGE */
+    .ai-badge{
+      font-size:10.5px;padding:3px 8px;border-radius:999px;
+      border:1px solid var(--blue-mid);background:var(--blue-light);
+      color:var(--blue);font-weight:700;white-space:nowrap;font-family:var(--mono);
+    }
+    .ai-badge.demo{border-color:rgba(239,68,68,.3);background:#FEF2F2;color:var(--danger)}
+    /* PILL */
+    .pill{
+      font-size:10.5px;color:var(--gray-400);border:1px solid var(--gray-200);
+      padding:2px 8px;border-radius:999px;white-space:nowrap;font-family:var(--mono);background:var(--gray-50);
+    }
+    /* MAIN */
+    .main{grid-area:main;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--gray-50)}
+    /* TOOLBAR */
+    .toolbar{
+      display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;
+      border:1px solid var(--gray-200);border-radius:var(--r);
+      background:var(--white);align-items:center;box-shadow:var(--shadow-sm);
+    }
+    .divider{width:1px;height:22px;background:var(--gray-200);margin:0 2px;flex-shrink:0}
+    .tlabel{font-size:10px;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;padding:0 2px;font-weight:600}
+    /* VIEWER */
+    .viewer{
+      flex:1;min-height:0;border:1px solid var(--gray-200);border-radius:var(--r);
+      background:#000000;overflow:hidden;position:relative;
+      box-shadow:inset 0 2px 8px rgba(0,0,0,.15);
+    }
+    canvas{width:100%;height:100%;display:block}
+    .empty{
+      position:absolute;inset:0;display:grid;place-items:center;
+      color:var(--gray-400);padding:16px;text-align:center;pointer-events:none;
+    }
+    .empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+    .empty-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;opacity:.6}
+    .empty-sub{font-size:13px;margin-bottom:4px;opacity:.5}
+    .empty-hint{font-size:11px;color:rgba(255,255,255,.3);font-family:var(--mono)}
+    /* HUD */
+    .hud{position:absolute;left:12px;bottom:12px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+    .hud-chip{
+      border:1px solid rgba(255,255,255,.15);border-radius:999px;
+      background:rgba(0,0,0,.7);padding:4px 12px;font-size:11.5px;color:rgba(255,255,255,.6);
+      backdrop-filter:blur(8px);font-family:var(--mono);
+    }
+    .hud-chip b{color:#fff;font-weight:700}
+    /* LIVE HUD */
+    .live-hud{
+      position:absolute;right:12px;top:12px;padding:10px 16px;
+      border:1px solid rgba(255,107,53,.5);border-radius:12px;
+      background:rgba(0,0,0,.88);backdrop-filter:blur(12px);
+      font-size:13px;font-weight:700;pointer-events:none;
+      display:none;align-items:center;gap:20px;
+      color:#fff;box-shadow:0 8px 32px rgba(0,0,0,.5);
+    }
+    .live-hud.show{display:flex}
+    .live-hud .lv{color:var(--orange);font-size:15px;font-family:var(--mono)}
+    .live-hud .la{color:var(--green);font-size:15px;font-family:var(--mono)}
+    /* LOADING */
+    .loading-overlay{
+      position:absolute;inset:0;display:none;place-items:center;
+      background:rgba(26,31,46,.8);backdrop-filter:blur(4px);z-index:10;border-radius:var(--r);}
+    .loading-overlay.show{display:grid}
+    .spinner{
+      width:44px;height:44px;border:3px solid rgba(0,102,204,.2);
+      border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* CMD BAR */
+    .cmd{
+      grid-area:cmd;padding:8px 12px;border-top:1px solid var(--gray-200);
+      background:var(--white);display:flex;gap:8px;align-items:center;min-width:0;box-shadow:var(--shadow-sm);
+    }
+    .cmd input{
+      flex:1;min-width:0;padding:9px 12px;border-radius:8px;
+      border:1px solid var(--gray-200);background:var(--gray-50);color:var(--gray-900);
+      outline:none;font-size:13px;font-family:var(--font);
+    }
+    .cmd input:focus{border-color:var(--blue);background:var(--white);box-shadow:0 0 0 3px rgba(0,102,204,.1)}
+    /* RIGHT PANEL */
+    .right{
+      grid-area:right;border-left:1px solid var(--gray-200);background:var(--white);
+      padding:10px;display:flex;flex-direction:column;gap:10px;min-width:0;overflow:auto;
+    }
+    .panel-card{
+      border:1px solid var(--gray-200);border-radius:var(--r);background:var(--white);padding:12px;
+      box-shadow:var(--shadow-sm);
+    }
+    .panel-header{
+      display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+      padding-bottom:8px;border-bottom:1px solid var(--gray-100);
+    }
+    .panel-title{font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px}
+    /* MEASUREMENT LIST */
+    .list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow:auto}
+    .item{
+      border:1px solid var(--gray-100);border-radius:8px;padding:9px 10px;
+      background:var(--gray-50);transition:.12s background;
+    }
+    .item:hover{background:var(--blue-light);border-color:var(--blue-mid)}
+    .item .row{display:flex;justify-content:space-between;gap:8px}
+    .item small{color:var(--gray-400);font-size:10.5px;font-family:var(--mono)}
+    .meas-val{font-weight:700;font-family:var(--mono);font-size:12.5px}
+    /* AI LOG */
+    .ai-log{min-height:100px;max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:5px}
+    .bubble{
+      border:1px solid var(--gray-200);border-radius:8px;padding:9px 10px;
+      background:var(--gray-50);color:var(--gray-700);font-size:12px;line-height:1.5;white-space:pre-wrap;
+    }
+    .bubble.muted{color:var(--gray-400)}
+    .bubble.me{
+      border-color:var(--blue-mid);background:var(--blue-light);color:var(--blue);
+      border-left:3px solid var(--blue);
+    }
+    .bubble.ai{border-left:3px solid var(--orange);background:var(--orange-light);border-color:var(--orange-mid)}
+    /* SYSLOG */
+    .syslog{
+      display:none;max-height:130px;overflow:auto;font-family:var(--mono);
+      font-size:10.5px;color:var(--gray-500);white-space:pre-wrap;
+      border:1px solid var(--gray-200);border-radius:8px;padding:9px;background:var(--gray-50);
+    }
+    /* TOASTS */
+    .toastHost{position:fixed;right:12px;top:12px;display:flex;flex-direction:column;gap:6px;z-index:9999;pointer-events:none}
+    .toast{
+      pointer-events:none;opacity:0;transform:translateY(-8px) scale(.97);transition:.2s ease;
+      padding:10px 14px;border-radius:10px;border:1px solid var(--gray-200);
+      background:rgba(255,255,255,.97);color:var(--gray-900);
+      box-shadow:0 8px 24px rgba(0,0,0,.12);max-width:340px;font-size:12.5px;
+      backdrop-filter:blur(8px);font-weight:500;
+    }
+    .toast.show{opacity:1;transform:translateY(0) scale(1)}
+    .toast.ok{border-color:var(--green);border-left:3px solid var(--green)}
+    .toast.warn{border-color:var(--warn);border-left:3px solid var(--warn)}
+    .toast.err{border-color:var(--danger);border-left:3px solid var(--danger)}
+    /* DL BUTTONS */
+    .dl-row{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+    .dl-btn{
+      flex:1;min-width:54px;padding:6px 8px;border-radius:7px;
+      border:1px solid var(--gray-200);background:var(--gray-50);
+      color:var(--gray-600);font-size:11.5px;font-weight:600;cursor:pointer;
+      text-align:center;transition:.12s background,.12s border-color;font-family:var(--font);
+    }
+    .dl-btn:hover{background:var(--blue-light);border-color:var(--blue-mid);color:var(--blue)}
+    @media(max-width:1050px){
+      .shell{grid-template-columns:52px 1fr;grid-template-rows:52px 1fr 56px;
+        grid-template-areas:"iconbar topbar""iconbar main""iconbar cmd"}
+      .right{display:none}
+    }
+  </style>
+  <style>
+    /* ===== NAVY DARK THEME - TÁCTICA INGENIERÍA ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --dk-bg: #080B18;
+      --dk-surface: #0D1120;
+      --dk-surface2: #111827;
+      --dk-surface3: #151E2E;
+      --dk-border: rgba(99,120,180,.2);
+      --dk-border2: rgba(99,120,180,.35);
+      --dk-glow-purple: rgba(120,80,220,.18);
+      --dk-glow-cyan: rgba(34,193,195,.12);
+      --dk-glow-green: rgba(16,185,129,.12);
+      --dk-text: #E2E8F0;
+      --dk-muted: #8B9BAE;
+      --dk-dim: #4A6580;
+    }
+
+    html, body {
+      background: var(--dk-bg) !important;
+      background-image:
+        radial-gradient(ellipse 900px 600px at 15% 5%, rgba(100,60,200,.12) 0%, transparent 55%),
+        radial-gradient(ellipse 700px 500px at 85% 10%, rgba(34,193,195,.07) 0%, transparent 50%),
+        radial-gradient(ellipse 600px 800px at 50% 100%, rgba(60,80,180,.08) 0%, transparent 55%) !important;
+      background-attachment: fixed !important;
+      color: var(--dk-text) !important;
+    }
+
+    /* TOPBAR / NAV */
+    .topbar, .topnav {
+      background: rgba(8,11,24,.88) !important;
+      backdrop-filter: blur(16px) !important;
+      border-bottom-color: var(--dk-border) !important;
+      box-shadow: 0 1px 0 rgba(99,120,180,.15) !important;
+    }
+    .brand-info strong { color: #E2E8F0 !important; }
+    .brand-info span { color: var(--dk-muted) !important; }
+    .brand-logo, .nav-logo {
+      background: linear-gradient(135deg,#7C3AED,#5B21B6) !important;
+      box-shadow: 0 2px 12px rgba(124,58,237,.45) !important;
+    }
+
+    /* NAV LINKS */
+    .nav a, .nav-link {
+      color: var(--dk-muted) !important;
+      border-color: transparent !important;
+    }
+    .nav a:hover, .nav-link:hover {
+      background: rgba(99,120,180,.12) !important;
+      color: var(--dk-text) !important;
+    }
+    .nav a.active, .nav-link.active {
+      background: rgba(124,58,237,.2) !important;
+      color: #A78BFA !important;
+      border-color: rgba(124,58,237,.4) !important;
+      font-weight: 700 !important;
+    }
+
+    /* ICONBAR */
+    .iconbar {
+      background: rgba(8,11,24,.95) !important;
+      border-right-color: var(--dk-border) !important;
+    }
+    .icon {
+      background: var(--dk-surface2) !important;
+      border-color: var(--dk-border) !important;
+      color: var(--dk-muted) !important;
+    }
+    .icon:hover {
+      background: rgba(124,58,237,.2) !important;
+      border-color: rgba(124,58,237,.45) !important;
+      color: #A78BFA !important;
+    }
+    .icon.active {
+      background: rgba(124,58,237,.25) !important;
+      border-color: rgba(124,58,237,.6) !important;
+      color: #C4B5FD !important;
+    }
+
+    /* TOOLBAR / ACTION STRIP */
+    .toolbar, .action-strip {
+      background: rgba(13,17,32,.8) !important;
+      border-color: var(--dk-border) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+
+    /* ALL CARDS / PANELS */
+    .panel-card, .right, .cmd, .hstrip, .main-card,
+    .upload-card, .chat-card, .section-card,
+    [class*="-card"], [class*="-panel"] {
+      background: rgba(13,17,32,.7) !important;
+      border-color: var(--dk-border) !important;
+      backdrop-filter: blur(8px) !important;
+      color: var(--dk-text) !important;
+    }
+
+    /* RIGHT PANEL */
+    .right {
+      background: rgba(8,11,24,.9) !important;
+      border-left-color: var(--dk-border) !important;
+    }
+
+    /* CMD BAR */
+    .cmd {
+      border-top-color: var(--dk-border) !important;
+      background: rgba(8,11,24,.95) !important;
+    }
+    .cmd input {
+      background: rgba(13,17,32,.9) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-text) !important;
+    }
+    .cmd input:focus {
+      border-color: rgba(124,58,237,.6) !important;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.15) !important;
+    }
+    .cmd input::placeholder { color: var(--dk-dim) !important; }
+
+    /* MAIN VIEWER AREA */
+    .main { background: transparent !important; }
+    .viewer {
+      background: #050810 !important;
+      border-color: var(--dk-border) !important;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,.5), 0 0 0 1px rgba(99,120,180,.1) !important;
+    }
+
+    /* PANEL HEADER */
+    .panel-header { border-bottom-color: var(--dk-border) !important; }
+    .panel-title { color: var(--dk-muted) !important; }
+
+    /* BUTTONS - Base */
+    .btn {
+      background: rgba(13,17,32,.8) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-muted) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3) !important;
+    }
+    .btn:hover:not(:disabled) {
+      background: rgba(20,25,45,.9) !important;
+      color: var(--dk-text) !important;
+      border-color: rgba(99,120,180,.5) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    /* COLORED BUTTONS - matching the mockup */
+    .btn.primary, .btn[class*="primary"] {
+      background: linear-gradient(135deg,#2563EB,#1D4ED8) !important;
+      border-color: #3B82F6 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(37,99,235,.45) !important;
+    }
+    .btn.primary:hover { background: linear-gradient(135deg,#1D4ED8,#1E40AF) !important; box-shadow: 0 4px 20px rgba(37,99,235,.55) !important; }
+
+    .btn.green, .btn.grn {
+      background: linear-gradient(135deg,#059669,#047857) !important;
+      border-color: #10B981 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(5,150,105,.45) !important;
+    }
+    .btn.green:hover, .btn.grn:hover { background: linear-gradient(135deg,#047857,#065F46) !important; }
+
+    .btn.orange, .btn.orn {
+      background: linear-gradient(135deg,#D97706,#B45309) !important;
+      border-color: #F59E0B !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(217,119,6,.45) !important;
+    }
+    .btn.orange:hover, .btn.orn:hover { background: linear-gradient(135deg,#B45309,#92400E) !important; }
+
+    .btn.purple {
+      background: linear-gradient(135deg,#7C3AED,#6D28D9) !important;
+      border-color: #8B5CF6 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(124,58,237,.45) !important;
+    }
+    .btn.purple:hover { background: linear-gradient(135deg,#6D28D9,#5B21B6) !important; }
+
+    .btn.dng {
+      background: linear-gradient(135deg,#DC2626,#B91C1C) !important;
+      border-color: #EF4444 !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px rgba(220,38,38,.4) !important;
+    }
+    .btn.dng:hover { background: linear-gradient(135deg,#B91C1C,#991B1B) !important; }
+
+    .btn.outline-orange, .btn.oorn {
+      background: rgba(217,119,6,.15) !important;
+      border-color: rgba(245,158,11,.4) !important;
+      color: #FCD34D !important;
+    }
+    .btn.outline-green, .btn.ogrn {
+      background: rgba(5,150,105,.15) !important;
+      border-color: rgba(16,185,129,.4) !important;
+      color: #34D399 !important;
+    }
+    .btn.outline-purple, .btn.obl, .btn.pri {
+      background: rgba(124,58,237,.15) !important;
+      border-color: rgba(139,92,246,.4) !important;
+      color: #A78BFA !important;
+    }
+
+    /* AI BADGE */
+    .ai-badge {
+      background: rgba(124,58,237,.2) !important;
+      border-color: rgba(139,92,246,.4) !important;
+      color: #A78BFA !important;
+    }
+
+    /* MEASUREMENT ITEMS */
+    .item {
+      background: rgba(13,17,32,.6) !important;
+      border-color: var(--dk-border) !important;
+    }
+    .item:hover {
+      background: rgba(124,58,237,.15) !important;
+      border-color: rgba(139,92,246,.4) !important;
+    }
+
+    /* BUBBLES / AI LOG */
+    .bubble {
+      background: rgba(13,17,32,.7) !important;
+      border-color: var(--dk-border) !important;
+      color: var(--dk-text) !important;
+    }
+    .bubble.ai { border-left-color: #7C3AED !important; }
+    .bubble.user { border-left-color: #2563EB !important; }
+
+    /* INPUTS / SELECTS / TEXTAREAS */
+    input, select, textarea {
+      background: rgba(13,17,32,.85) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-text) !important;
+    }
+    input::placeholder, textarea::placeholder { color: var(--dk-dim) !important; }
+    select option { background: #0D1120; color: #E2E8F0; }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(124,58,237,.6) !important;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.12) !important;
+      outline: none !important;
+    }
+
+    /* DROP ZONES */
+    .drop-zone, [id*="drop"], [class*="drop"] {
+      background: rgba(13,17,32,.5) !important;
+      border-color: rgba(99,120,180,.25) !important;
+    }
+
+    /* PILLS / BADGES */
+    .pill {
+      background: rgba(13,17,32,.8) !important;
+      border-color: var(--dk-border) !important;
+      color: var(--dk-muted) !important;
+    }
+
+    /* TABLES */
+    th {
+      background: rgba(8,11,24,.8) !important;
+      color: var(--dk-muted) !important;
+      border-color: var(--dk-border) !important;
+    }
+    td { border-color: var(--dk-border) !important; color: var(--dk-text) !important; }
+    tr:nth-child(even) { background: rgba(13,17,32,.4) !important; }
+    tr:hover { background: rgba(124,58,237,.08) !important; }
+
+    /* HUD CHIPS */
+    .hud-chip {
+      background: rgba(8,11,24,.85) !important;
+      border-color: rgba(99,120,180,.2) !important;
+      color: rgba(226,232,240,.7) !important;
+    }
+
+    /* TOASTS */
+    .toast, #toast {
+      background: rgba(13,17,32,.96) !important;
+      border-color: var(--dk-border2) !important;
+      color: var(--dk-text) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+
+    /* DIVIDERS */
+    .divider { background: var(--dk-border) !important; }
+
+    /* TEXT COLORS */
+    h1,h2,h3,h4,h5,h6 { color: var(--dk-text) !important; }
+    .tlabel { color: var(--dk-dim) !important; }
+
+    /* SCROLLBARS */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(8,11,24,.5); }
+    ::-webkit-scrollbar-thumb { background: rgba(99,120,180,.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,.5); }
+
+    /* ===== END NAVY DARK THEME ===== */
+  </style>
+
+  <style>
+    /* ===== DARK CARDS & PANELS FIX ===== */
+
+    /* Override CSS variables to dark values */
+    :root {
+      --white: #0D1120 !important;
+      --gray-50: #080B18 !important;
+      --gray-100: #111827 !important;
+      --gray-200: rgba(99,120,180,.22) !important;
+      --gray-400: #4A6580 !important;
+      --gray-500: #8B9BAE !important;
+      --gray-600: #9CA8BB !important;
+      --gray-700: #C8D3E0 !important;
+      --gray-900: #E2E8F0 !important;
+      --g50: #080B18 !important;
+      --g100: #111827 !important;
+      --g200: rgba(99,120,180,.22) !important;
+      --g400: #4A6580 !important;
+      --g500: #8B9BAE !important;
+      --g700: #C8D3E0 !important;
+      --g900: #E2E8F0 !important;
+      --blue-light: rgba(37,99,235,.15) !important;
+      --blue-mid: rgba(59,130,246,.35) !important;
+      --bl: rgba(37,99,235,.15) !important;
+      --bm: rgba(59,130,246,.35) !important;
+      --orange-light: rgba(217,119,6,.12) !important;
+      --orange-mid: rgba(245,158,11,.3) !important;
+      --ol: rgba(217,119,6,.12) !important;
+      --om: rgba(245,158,11,.3) !important;
+      --green-light: rgba(5,150,105,.12) !important;
+      --green-mid: rgba(16,185,129,.3) !important;
+      --gl: rgba(5,150,105,.12) !important;
+      --gm: rgba(16,185,129,.3) !important;
+      --purple-light: rgba(124,58,237,.12) !important;
+      --sh: 0 4px 16px rgba(0,0,0,.5) !important;
+      --shs: 0 1px 4px rgba(0,0,0,.4) !important;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,.4) !important;
+      --shadow: 0 4px 16px rgba(0,0,0,.5) !important;
+      --shadow-md: 0 8px 24px rgba(0,0,0,.6) !important;
+    }
+
+    /* Force all text to be light */
+    body, body * {
+      color: #E2E8F0;
+    }
+
+    /* Specific overrides for elements that might still show white */
+    .bubble, .ai-bubble, [class*="bubble"] {
+      background: #111827 !important;
+      border-color: rgba(99,120,180,.25) !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Chat areas */
+    [class*="chat"], [id*="chat"] {
+      background: #0D1120 !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Upload zones - dashed border areas */
+    [class*="upload"], [id*="upload"],
+    [class*="drop"], [id*="drop"] {
+      background: rgba(8,11,24,.7) !important;
+      border-color: rgba(99,120,180,.3) !important;
+      color: #8B9BAE !important;
+    }
+
+    /* Stats / info pills inside cards */
+    [class*="stat"], [class*="info-"] {
+      background: #111827 !important;
+      border-color: rgba(99,120,180,.2) !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Section headers inside cards */
+    .hstrip, [class*="hstrip"], [class*="header-strip"] {
+      background: #0D1120 !important;
+      border-color: rgba(99,120,180,.2) !important;
+    }
+
+    /* Instruction / helper text */
+    [class*="hint"], [class*="help"], [class*="tip"], pre, code {
+      background: rgba(8,11,24,.6) !important;
+      color: #8B9BAE !important;
+    }
+
+    /* Selection / project dropdowns */
+    .project-select, [class*="proj-"], [id*="proj"] {
+      background: #111827 !important;
+      color: #E2E8F0 !important;
+    }
+
+    /* Bold text should be white/bright */
+    strong, b, h1, h2, h3, h4, h5, h6,
+    [class*="-title"], [class*="-name"],
+    .brand-info strong {
+      color: #F0F4F8 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Muted / secondary text */
+    [class*="-sub"], [class*="-desc"], [class*="-hint"],
+    [class*="-meta"], [class*="-label"], small, .brand-info span {
+      color: #8B9BAE !important;
+    }
+
+    /* Borders globally */
+    [class*="-card"], [class*="-panel"], [class*="-section"],
+    [class*="-zone"], [class*="-strip"], [class*="-wrap"] {
+      border-color: rgba(99,120,180,.2) !important;
+    }
+
+    /* ===== END FIX ===== */
+  </style>
+
+</head>
+<body>
+  <div class="toastHost" id="toastHost"></div>
+  <div class="shell">
+
+    <aside class="iconbar" aria-label="Módulos">
+      <div class="icon active" title="Medición" onclick="location.href='/static/viewer.html'">📐</div>
+      <div class="icon" title="Estructural" onclick="location.href='/static/structural.html'">🏗️</div>
+      <div class="icon" title="Presupuestos" onclick="location.href='/static/budget_advanced.html'">💰</div>
+      <div class="icon" title="Proyectos" onclick="location.href='/static/projects.html'">📁</div>
+    </aside>
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-logo">TI</div>
+        <div class="brand-info">
+          <strong>Medición y Calibración</strong>
+          <span id="subTitle">Sin proyecto · sin plano</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="active" href="/static/viewer.html">📐 Medición</a>
+        <a href="/static/structural.html">🏗️ Estructural</a>
+        <a href="/static/budget_advanced.html">💰 Costos</a>
+        <a href="/static/projects.html">📁 Proyectos</a>
+      </nav>
+      <div class="top-actions">
+        <span class="ai-badge" id="aiBadge">⚡ GPT-4o Vision</span>
+        <select id="projectSelect" title="Proyecto activo"></select>
+        <button class="btn green" id="btnNewProject">➕ Proyecto</button>
+        <button class="btn" id="btnToggleLog" title="Log del sistema">🖥️</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="toolbar">
+        <input id="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.tif,.tiff,.bmp" style="display:none" />
+        <button class="btn primary" id="btnLoad">📎 Cargar plano</button>
+        <span class="divider"></span>
+        <span class="tlabel">Calibrar</span>
+        <button class="btn outline-orange" id="btnCalibrate">🎯 Calibrar <span class="pill" id="scalePill">px→m</span></button>
+        <span class="divider"></span>
+        <span class="tlabel">Medir</span>
+        <button class="btn outline-green" id="btnPolyline" disabled>📏 Polilínea</button>
+        <button class="btn" id="btnClearTool">✕ Limpiar</button>
+        <span class="divider"></span>
+        <span class="tlabel">Informes</span>
+        <button class="btn green" id="btnReportMeasure">📄 Informe</button>
+        <button class="btn outline-purple" id="btnReportAnalysis">🧠 Análisis IA</button>
+        <span class="divider"></span>
+        <span class="pill" style="font-size:9.5px;color:var(--gray-400)">Rueda=zoom · Clic der/Espacio=pan · Clic en origen para cerrar</span>
+      </section>
+
+      <section class="viewer" id="viewer">
+        <canvas id="canvas"></canvas>
+        <div class="loading-overlay" id="loadingOverlay">
+          <div style="text-align:center">
+            <div class="spinner" style="margin:0 auto 14px"></div>
+            <div style="color:rgba(255,255,255,.6);font-size:12.5px;font-family:var(--mono)" id="loadingMsg">Cargando…</div>
+          </div>
+        </div>
+        <div class="empty" id="empty">
+          <div>
+            <div class="empty-icon">📐</div>
+            <div class="empty-title">Carga un plano para empezar</div>
+            <div class="empty-sub">Usa 📎 Cargar plano o arrastra un archivo aquí</div>
+            <div class="empty-hint">PDF · PNG · JPG · WEBP · TIFF</div>
+          </div>
+        </div>
+        <div class="hud">
+          <div class="hud-chip" id="hudMode"><b>Modo:</b> —</div>
+          <div class="hud-chip" id="hudLive"><b>Long:</b> —</div>
+          <div class="hud-chip" id="hudArea"><b>Área:</b> —</div>
+        </div>
+        <div class="live-hud" id="liveHud">
+          <span>📏 <span class="lv" id="liveLong">—</span></span>
+          <span>⬜ <span class="la" id="liveArea">—</span></span>
+        </div>
+      </section>
+    </main>
+
+    <div class="cmd">
+      <input id="cmdInput" placeholder='Pregunta a la IA: "resume mediciones", "qué áreas medí", "recomienda chequeos"…' />
+      <button class="btn primary" id="cmdSend">Enviar →</button>
+    </div>
+
+    <aside class="right" id="right">
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">Mediciones</div>
+          <span class="ai-badge" id="measCount">0</span>
+        </div>
+        <div class="list" id="measList"></div>
+        <div class="dl-row">
+          <button class="dl-btn" id="dlPdf" title="Descarga PDF con mediciones + respuestas del chat IA">↓ PDF</button>
+          <button class="dl-btn" id="dlExcel" title="Descarga Excel con mediciones + respuestas del chat IA">↓ Excel</button>
+          <button class="dl-btn" id="dlWord" title="Descarga Word con mediciones + respuestas del chat IA">↓ Word</button>
+        </div>
+      </div>
+      <div class="panel-card" style="flex:1;min-height:0;display:flex;flex-direction:column">
+        <div class="panel-header">
+          <div class="panel-title">Chat IA</div>
+          <span class="ai-badge" id="iaModelBadge">GPT-4o</span>
+        </div>
+        <div class="ai-log" id="aiLog" style="flex:1"></div>
+        <div class="syslog" id="sysLog"></div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  const API = "/api/v1";
+  const STORAGE_KEY = "TACTICA_ACTIVE_PROJECT";
+  const $ = id => document.getElementById(id);
+
+  const el = {
+    projectSelect:$("projectSelect"), btnNewProject:$("btnNewProject"),
+    btnToggleLog:$("btnToggleLog"), sysLog:$("sysLog"), subTitle:$("subTitle"),
+    aiBadge:$("aiBadge"), iaModelBadge:$("iaModelBadge"),
+    fileInput:$("fileInput"), btnLoad:$("btnLoad"),
+    btnCalibrate:$("btnCalibrate"), btnPolyline:$("btnPolyline"), btnClearTool:$("btnClearTool"),
+    btnReportMeasure:$("btnReportMeasure"), btnReportAnalysis:$("btnReportAnalysis"),
+    scalePill:$("scalePill"), viewer:$("viewer"), canvas:$("canvas"), empty:$("empty"),
+    hudMode:$("hudMode"), hudLive:$("hudLive"), hudArea:$("hudArea"),
+    liveHud:$("liveHud"), liveLong:$("liveLong"), liveArea:$("liveArea"),
+    cmdInput:$("cmdInput"), cmdSend:$("cmdSend"),
+    aiLog:$("aiLog"), measList:$("measList"), measCount:$("measCount"),
+    dlPdf:$("dlPdf"), dlExcel:$("dlExcel"), dlWord:$("dlWord"),
+    toastHost:$("toastHost"), loadingOverlay:$("loadingOverlay"), loadingMsg:$("loadingMsg"),
+  };
+
+  const state = {
+    projects:[], activeProjectId:localStorage.getItem(STORAGE_KEY)||"", activeProject:null,
+    file:null, image:null, imageUrl:null,
+    view:{tx:0,ty:0,s:1},
+    tool:"none",
+    calibrate:{a:null,b:null,mPerPx:null,pxPerM:null},
+    poly:{points:[],closed:false},
+    measurements:[],
+    last:{files:{},analysis_id:null,report_id:null},
+    pan:{active:false,sx:0,sy:0,tx0:0,ty0:0},
+    keySpace:false, mouseImg:null,
+  };
+
+  // ── Toast ─────────────────────────────────────────────────────
+  function toast(msg, kind="ok", ms=3000){
+    const t=document.createElement("div");
+    t.className="toast "+(kind==="ok"?"ok":kind==="warn"?"warn":"err");
+    t.textContent=msg; el.toastHost.appendChild(t);
+    requestAnimationFrame(()=>t.classList.add("show"));
+    setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),220);},ms);
+  }
+  function log(msg){
+    if(!el.sysLog) return;
+    el.sysLog.textContent+=`[${new Date().toLocaleTimeString()}] ${msg}\n`;
+    el.sysLog.scrollTop=el.sysLog.scrollHeight;
+  }
+  function aiBubble(text,isUser=false){
+    const d=document.createElement("div");
+    d.className="bubble"+(isUser?" me":"");
+    d.textContent=text; el.aiLog.appendChild(d);
+    el.aiLog.scrollTop=el.aiLog.scrollHeight;
+  }
+  function fmt(n,d=2){
+    if(n==null||isNaN(n)) return "—";
+    return Number(n).toFixed(d);
+  }
+  function updateSubtitle(){
+    const pn=state.activeProject?state.activeProject.name:"Sin proyecto";
+    const fn=state.file?state.file.name:"sin plano";
+    el.subTitle.textContent=`${pn} · ${fn}`;
+  }
+  function setScalePill(){
+    if(state.calibrate.mPerPx){
+      el.scalePill.textContent=`1px=${fmt(state.calibrate.mPerPx,5)}m`;
+      el.btnCalibrate.classList.add("primary");
+      el.btnPolyline.disabled=false;
+    } else {
+      el.scalePill.textContent="px→m";
+      el.btnCalibrate.classList.remove("primary");
+      el.btnPolyline.disabled=true;
+    }
+  }
+
+  // ── Health / IA status ────────────────────────────────────────
+  async function checkHealth(){
+    try{
+      const r=await fetch(`${API}/health`);
+      const d=await r.json();
+      if(d.simulation){
+        [el.aiBadge,el.iaModelBadge].forEach(b=>{
+          b.textContent="🔴 Modo Demo";
+          b.classList.add("demo");
+          b.title="OPENAI_API_KEY no configurada — modo simulación";
+        });
+        toast("IA en modo demo. Agrega OPENAI_API_KEY en .env para activar GPT-4o.", "warn", 6000);
+      } else {
+        [el.aiBadge,el.iaModelBadge].forEach(b=>{
+          b.textContent="⚡ GPT-4o Vision";
+          b.title="GPT-4o Vision activo";
+        });
+      }
+      log(`Backend: v${d.version} | simulación=${d.simulation} | fitz=${d.modules?.fitz}`);
+    }catch(e){ log("Health check: " + e.message); }
+  }
+
+  // ── Projects ──────────────────────────────────────────────────
+  async function loadProjects(){
+    try{
+      const r=await fetch(`${API}/projects`);
+      const d=await r.json();
+      state.projects=d.projects||[];
+      if(state.activeProjectId)
+        state.activeProject=state.projects.find(p=>p.id===state.activeProjectId)||null;
+      if(!state.activeProject&&state.projects.length){
+        state.activeProject=state.projects[0];
+        state.activeProjectId=state.activeProject.id;
+        localStorage.setItem(STORAGE_KEY,state.activeProjectId);
+      }
+      el.projectSelect.innerHTML="";
+      if(!state.projects.length){
+        const o=document.createElement("option");
+        o.value="";o.textContent="Sin proyectos (crea uno)";
+        el.projectSelect.appendChild(o);
+        state.activeProject=null;state.activeProjectId="";
+      } else {
+        for(const p of state.projects){
+          const o=document.createElement("option");
+          o.value=p.id;
+          o.textContent=`${p.name}${p.location?" — "+p.location:""}`;
+          if(p.id===state.activeProjectId) o.selected=true;
+          el.projectSelect.appendChild(o);
+        }
+      }
+      updateSubtitle();
+    }catch(e){ log("loadProjects: "+e.message); }
+  }
+
+  async function createProject(){
+    const name=prompt("📁 Nombre del proyecto:");
+    if(!name) return;
+    const location=prompt("📍 Ubicación (opcional):")||"";
+    const currency=(prompt("💱 Moneda (COP/USD/EUR):","COP")||"COP").toUpperCase();
+    const fd=new FormData();
+    fd.append("name",name);fd.append("location",location);fd.append("currency",currency);
+    try{
+      const r=await fetch(`${API}/projects`,{method:"POST",body:fd});
+      if(!r.ok){toast("No se pudo crear el proyecto","err");return;}
+      const p=await r.json();
+      state.activeProjectId=p.id;
+      localStorage.setItem(STORAGE_KEY,state.activeProjectId);
+      await loadProjects();
+      toast(`Proyecto "${name}" creado ✅`,"ok");
+    }catch(e){toast("Error: "+e.message,"err");}
+  }
+
+  el.projectSelect.addEventListener("change",()=>{
+    state.activeProjectId=el.projectSelect.value||"";
+    localStorage.setItem(STORAGE_KEY,state.activeProjectId);
+    state.activeProject=state.projects.find(p=>p.id===state.activeProjectId)||null;
+    updateSubtitle();
+    toast("Proyecto: "+(state.activeProject?.name||"Ninguno"),"ok");
+  });
+  el.btnNewProject.addEventListener("click",createProject);
+
+  // ── Canvas ────────────────────────────────────────────────────
+  const ctx=el.canvas.getContext("2d",{alpha:false});
+
+  function resizeCanvas(){
+    const r=el.viewer.getBoundingClientRect();
+    el.canvas.width=Math.max(1,Math.floor(r.width));
+    el.canvas.height=Math.max(1,Math.floor(r.height));
+    draw();
+  }
+  window.addEventListener("resize",resizeCanvas);
+
+  function fitImage(){
+    if(!state.image) return;
+    const cw=el.canvas.width,ch=el.canvas.height;
+    const s=Math.min(cw/state.image.width,ch/state.image.height)*.95;
+    state.view.s=s;
+    state.view.tx=(cw-state.image.width*s)/2;
+    state.view.ty=(ch-state.image.height*s)/2;
+  }
+  function s2i(x,y){const{tx,ty,s}=state.view;return{x:(x-tx)/s,y:(y-ty)/s};}
+  function i2s(x,y){const{tx,ty,s}=state.view;return{x:tx+x*s,y:ty+y*s};}
+  function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+  function polyLen(pts){let L=0;for(let i=1;i<pts.length;i++) L+=dist(pts[i-1],pts[i]);return L;}
+  function polyArea(pts){
+    let a=0;
+    for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;a+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;}
+    return Math.abs(a)/2;
+  }
+
+  function draw(){
+    const cw=el.canvas.width,ch=el.canvas.height;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,cw,ch);
+    ctx.fillStyle="#000000";
+    ctx.fillRect(0,0,cw,ch);
+    if(!state.image){el.empty.style.display="grid";return;}
+    el.empty.style.display="none";
+    const{s,tx,ty}=state.view;
+    ctx.setTransform(s,0,0,s,tx,ty);
+    ctx.imageSmoothingEnabled=true;
+    ctx.drawImage(state.image,0,0);
+    const inv=1/s;
+
+    // Calibración
+    if(state.tool==="calibrate"){
+      ctx.strokeStyle="#fbbf24";ctx.lineWidth=2*inv;
+      const{a,b}=state.calibrate;
+      if(a){ctx.beginPath();ctx.arc(a.x,a.y,7*inv,0,Math.PI*2);ctx.stroke();}
+      if(b){ctx.beginPath();ctx.arc(b.x,b.y,7*inv,0,Math.PI*2);ctx.stroke();}
+      if(a&&b){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+    }
+
+    // Polilínea activa
+    const pts=state.poly.points;
+    if(pts.length){
+      ctx.strokeStyle="rgba(34,193,195,.95)";
+      ctx.fillStyle="rgba(34,193,195,.10)";
+      ctx.lineWidth=2*inv;
+      ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+      if(state.poly.closed){ctx.closePath();ctx.fill();}
+      ctx.stroke();
+
+      // Preview hacia cursor
+      if(state.tool==="polyline"&&state.mouseImg&&!state.poly.closed){
+        ctx.strokeStyle="rgba(34,193,195,.4)";
+        ctx.setLineDash([6*inv,4*inv]);
+        ctx.beginPath();ctx.moveTo(pts[pts.length-1].x,pts[pts.length-1].y);
+        ctx.lineTo(state.mouseImg.x,state.mouseImg.y);ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      // Vértices
+      ctx.fillStyle="rgba(229,231,235,.9)";
+      for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,4*inv,0,Math.PI*2);ctx.fill();}
+      // Primer punto resaltado (cerrar)
+      if(pts.length>=3){
+        ctx.strokeStyle="rgba(34,193,195,.8)";ctx.lineWidth=1.5*inv;
+        ctx.beginPath();ctx.arc(pts[0].x,pts[0].y,10*inv,0,Math.PI*2);ctx.stroke();
+      }
+    }
+
+    // Mediciones guardadas
+    ctx.strokeStyle="rgba(229,231,235,.45)";
+    ctx.fillStyle="rgba(229,231,235,.04)";
+    ctx.lineWidth=1.5*inv;
+    for(const m of state.measurements){
+      if(!m.points||m.points.length<2) continue;
+      ctx.beginPath();ctx.moveTo(m.points[0].x,m.points[0].y);
+      for(let i=1;i<m.points.length;i++) ctx.lineTo(m.points[i].x,m.points[i].y);
+      if(m.closed){ctx.closePath();ctx.fill();}
+      ctx.stroke();
+    }
+  }
+
+  // ── Herramientas ──────────────────────────────────────────────
+  function setTool(t){
+    state.tool=t;
+    state.calibrate.a=null;state.calibrate.b=null;
+    if(t!=="polyline"){state.poly.points=[];state.poly.closed=false;}
+    el.btnCalibrate.classList.toggle("warn",t==="calibrate");
+    el.btnPolyline.classList.toggle("primary",t==="polyline");
+    el.hudMode.innerHTML=`<b>Modo:</b> ${t==="calibrate"?"🎯 Calibración":t==="polyline"?"📏 Polilínea":"—"}`;
+    if(t!=="polyline") el.liveHud.classList.remove("show");
+    draw();
+  }
+
+  el.btnCalibrate.addEventListener("click",()=>{
+    if(!state.image){toast("Carga un plano primero","warn");return;}
+    setTool(state.tool==="calibrate"?"none":"calibrate");
+    if(state.tool==="calibrate") toast("🎯 Marca 2 puntos de distancia conocida","ok");
+  });
+  el.btnPolyline.addEventListener("click",()=>{
+    if(!state.image){toast("Carga un plano primero","warn");return;}
+    if(!state.calibrate.mPerPx){toast("Calibra la escala antes de medir","warn");return;}
+    const next=state.tool==="polyline"?"none":"polyline";
+    if(next==="polyline") state.poly.points=[];
+    setTool(next);
+    if(next==="polyline") toast("📏 Clic para agregar puntos · clic en origen para cerrar","ok",4000);
+  });
+  el.btnClearTool.addEventListener("click",()=>{
+    state.poly.points=[];state.poly.closed=false;
+    state.calibrate.a=null;state.calibrate.b=null;
+    el.liveHud.classList.remove("show");
+    draw();toast("Trazo limpiado","ok");
+  });
+
+  // ── Carga de plano (cliente) ──────────────────────────────────
+  async function loadPlan(file){
+    state.file=file;state.last={files:{},analysis_id:null,report_id:null};
+    updateSubtitle();
+    el.loadingOverlay.classList.add("show");
+    el.loadingMsg.textContent="Procesando…";
+    const lower=file.name.toLowerCase();
+    const isPdf=lower.endsWith(".pdf")||file.type==="application/pdf";
+    if(isPdf) await renderPdf(file);
+    else await renderImg(file);
+    el.loadingOverlay.classList.remove("show");
+    // Notificar backend (analytics, no bloquea)
+    try{
+      const fd=new FormData();
+      fd.append("file",file,file.name);fd.append("page","1");fd.append("dpi","150");
+      if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+      const r=await fetch(`${API}/plan/render`,{method:"POST",body:fd});
+      if(r.ok){const d=await r.json();state.imageUrl=d.image_url||null;log("Backend render OK");}
+    }catch(e){log("Backend render no disponible: "+e.message);}
+  }
+
+  async function renderPdf(file){
+    if(typeof pdfjsLib==="undefined"){toast("PDF.js no cargó","err");return;}
+    try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc=
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      el.loadingMsg.textContent="Leyendo PDF…";
+      const buf=await file.arrayBuffer();
+      const pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;
+      el.loadingMsg.textContent=`Renderizando pág 1/${pdfDoc.numPages}…`;
+      const page=await pdfDoc.getPage(1);
+      const vp=page.getViewport({scale:2.5});
+      const oc=document.createElement("canvas");
+      oc.width=vp.width;oc.height=vp.height;
+      await page.render({canvasContext:oc.getContext("2d"),viewport:vp}).promise;
+      const img=new Image();
+      await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=oc.toDataURL("image/png");});
+      state.image=img;resizeCanvas();fitImage();draw();
+      toast(`✅ PDF cargado · ${pdfDoc.numPages} pág. · ${vp.width}×${vp.height}px`,"ok");
+      updateSubtitle();
+    }catch(err){toast("Error en PDF: "+err.message,"err");log("renderPdf: "+err.message);}
+  }
+
+  async function renderImg(file){
+    el.loadingMsg.textContent="Cargando imagen…";
+    return new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onload=e=>{
+        const img=new Image();
+        img.onload=()=>{
+          state.image=img;resizeCanvas();fitImage();draw();
+          toast(`✅ Imagen cargada · ${img.width}×${img.height}px`,"ok");
+          updateSubtitle();resolve();
+        };
+        img.onerror=()=>{toast("Error cargando imagen","err");resolve();};
+        img.src=e.target.result;
+      };
+      reader.onerror=()=>{toast("Error leyendo archivo","err");resolve();};
+      reader.readAsDataURL(file);
+    });
+  }
+
+  el.btnLoad.addEventListener("click",()=>el.fileInput.click());
+  el.fileInput.addEventListener("change",e=>{const f=e.target.files?.[0];if(f) loadPlan(f);});
+  el.viewer.addEventListener("dragover",e=>{e.preventDefault();el.viewer.style.outline="2px dashed rgba(34,193,195,.7)";});
+  el.viewer.addEventListener("dragleave",()=>el.viewer.style.outline="");
+  el.viewer.addEventListener("drop",e=>{
+    e.preventDefault();el.viewer.style.outline="";
+    const f=e.dataTransfer.files?.[0];if(f) loadPlan(f);
+  });
+
+  // ── Zoom / Pan ────────────────────────────────────────────────
+  el.viewer.addEventListener("contextmenu",e=>e.preventDefault());
+  window.addEventListener("keydown",e=>{if(e.code==="Space") state.keySpace=true;});
+  window.addEventListener("keyup",e=>{if(e.code==="Space") state.keySpace=false;});
+
+  el.viewer.addEventListener("wheel",e=>{
+    if(!state.image) return;
+    e.preventDefault();
+    const r=el.canvas.getBoundingClientRect();
+    const sx=e.clientX-r.left,sy=e.clientY-r.top;
+    const before=s2i(sx,sy);
+    const ns=Math.max(.05,Math.min(20,state.view.s*Math.exp(-e.deltaY*.001)));
+    state.view.s=ns;
+    const after=i2s(before.x,before.y);
+    state.view.tx+=sx-after.x;state.view.ty+=sy-after.y;
+    draw();
+  },{passive:false});
+
+  el.viewer.addEventListener("mousedown",e=>{
+    if(!state.image) return;
+    if(state.keySpace||e.button===2){
+      state.pan.active=true;
+      state.pan.sx=e.clientX;state.pan.sy=e.clientY;
+      state.pan.tx0=state.view.tx;state.pan.ty0=state.view.ty;
+    }
+  });
+  window.addEventListener("mouseup",()=>state.pan.active=false);
+  window.addEventListener("mousemove",e=>{
+    if(state.pan.active){
+      state.view.tx=state.pan.tx0+(e.clientX-state.pan.sx);
+      state.view.ty=state.pan.ty0+(e.clientY-state.pan.sy);
+      draw();return;
+    }
+    if(state.tool==="polyline"&&state.image){
+      const r=el.canvas.getBoundingClientRect();
+      state.mouseImg=s2i(e.clientX-r.left,e.clientY-r.top);
+      const pts=state.poly.points;
+      if(pts.length>0){
+        const preview=[...pts,state.mouseImg];
+        const mLen=polyLen(preview)*(state.calibrate.mPerPx||0);
+        const mArea=polyArea(pts)*(state.calibrate.mPerPx||0)**2;
+        el.liveHud.classList.add("show");
+        el.liveLong.textContent=fmt(mLen,2)+" m";
+        el.liveArea.textContent=(pts.length>=2?fmt(mArea,2)+" m²":"—");
+      }
+      draw();
+    }
+  });
+
+  // ── Click en canvas ───────────────────────────────────────────
+  el.viewer.addEventListener("click",async e=>{
+    if(!state.image||state.pan.active) return;
+    const r=el.canvas.getBoundingClientRect();
+    const p=s2i(e.clientX-r.left,e.clientY-r.top);
+
+    if(state.tool==="calibrate"){
+      if(!state.calibrate.a){
+        state.calibrate.a=p;toast("Punto A marcado ✅ — ahora marca el punto B","ok");draw();return;
+      }
+      state.calibrate.b=p;
+      const px=dist(state.calibrate.a,state.calibrate.b);
+      const distStr=prompt("📏 Distancia real entre los 2 puntos (metros):","1");
+      const known=Number(distStr||"0");
+      if(!known||known<=0){
+        toast("Distancia inválida","warn");
+        state.calibrate.a=null;state.calibrate.b=null;draw();return;
+      }
+      // ✅ FIX: Calibrar localmente de inmediato (no depender del backend)
+      state.calibrate.pxPerM=px/known;
+      state.calibrate.mPerPx=known/px;
+      setScalePill();
+      toast(`✅ Escala: 1px = ${fmt(known/px,6)} m · Polilínea habilitada`,"ok");
+      log(`Calibración local: ${px.toFixed(2)}px = ${known}m → mPerPx=${(known/px).toFixed(8)}`);
+
+      // Guardar en backend (opcional, no bloquea)
+      if(state.file){
+        try{
+          const fd=new FormData();
+          fd.append("file",state.file,state.file.name);
+          fd.append("known_distance_m",String(known));
+          fd.append("px_distance",String(px));
+          if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+          const res=await fetch(`${API}/calibrate`,{method:"POST",body:fd});
+          if(res.ok){
+            const d=await res.json();
+            state.calibrate.pxPerM=d.px_per_meter;
+            state.calibrate.mPerPx=d.m_per_px;
+            setScalePill();log("Calibración guardada en backend ✅");
+          }
+        }catch(err){log("Backend calibrate: "+err.message);}
+      }
+      setTool("none");draw();return;
+    }
+
+    if(state.tool==="polyline"){
+      const pts=state.poly.points;
+      if(pts.length>=3&&dist(p,pts[0])*state.view.s<14){
+        state.poly.closed=true;
+        const mLen=polyLen([...pts,pts[0]])*state.calibrate.mPerPx;
+        const mArea=polyArea(pts)*state.calibrate.mPerPx**2;
+        const meas={
+          id:Date.now().toString(36),created_at:new Date().toISOString(),
+          points:pts.slice(),closed:true,perimeter_m:mLen,area_m2:mArea,
+        };
+        state.measurements.push(meas);
+        el.liveHud.classList.add("show");
+        el.liveLong.textContent=fmt(mLen,2)+" m";
+        el.liveArea.textContent=fmt(mArea,2)+" m²";
+        el.hudLive.innerHTML=`<b>Long:</b> ${fmt(mLen,2)} m`;
+        el.hudArea.innerHTML=`<b>Área:</b> ${fmt(mArea,2)} m²`;
+        toast(`✅ ${fmt(mLen,2)} m · ${fmt(mArea,2)} m²`,"ok");
+        el.measCount.textContent=state.measurements.length;
+        renderMeasurementsList();
+        if(state.activeProjectId){
+          fetch(`${API}/projects/${state.activeProjectId}/events`,{
+            method:"POST",headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({type:"measurement_created",payload:{perimeter_m:mLen,area_m2:mArea,points:pts.length}})
+          }).catch(()=>{});
+        }
+        state.poly.points=[];state.poly.closed=false;
+        draw();return;
+      }
+      pts.push(p);
+      const mLen=polyLen(pts)*(state.calibrate.mPerPx||0);
+      el.liveLong.textContent=fmt(mLen,2)+" m";
+      el.liveHud.classList.add("show");
+      draw();
+    }
+  });
+
+  // ── Lista de mediciones ───────────────────────────────────────
+  function renderMeasurementsList(){
+    el.measList.innerHTML="";
+    if(!state.measurements.length){
+      const d=document.createElement("div");d.className="bubble muted";
+      d.style.fontSize="12px";d.textContent="Aún no hay mediciones.";
+      el.measList.appendChild(d);return;
+    }
+    for(const m of state.measurements.slice().reverse()){
+      const it=document.createElement("div");it.className="item";
+      it.innerHTML=`
+        <div class="row"><b style="font-size:12px">Polilínea #${state.measurements.indexOf(m)+1}</b>
+          <small>${new Date(m.created_at).toLocaleTimeString()}</small></div>
+        <div class="row" style="margin-top:6px;gap:16px">
+          <div><small>Perímetro</small>
+            <div style="font-weight:800;color:var(--primary)">${fmt(m.perimeter_m,2)} m</div></div>
+          <div><small>Área</small>
+            <div style="font-weight:800;color:var(--green)">${fmt(m.area_m2,2)} m²</div></div>
+        </div>`;
+      el.measList.appendChild(it);
+    }
+  }
+
+  // ── Informes ──────────────────────────────────────────────────
+  function buildItems(){
+    return state.measurements.map((m,i)=>({
+      item:i+1,tipo:"polilínea",
+      perimetro_m:+m.perimeter_m.toFixed(3),
+      area_m2:+m.area_m2.toFixed(3),
+      puntos:m.points.length,fecha:m.created_at,
+    }));
+  }
+
+  async function genReport(items,titulo,subtitulo,fmt2="all",mode="measure"){
+    const fd=new FormData();
+    fd.append("format",fmt2);fd.append("titulo",titulo);
+    fd.append("subtitulo",subtitulo||"");fd.append("mode",mode);
+    fd.append("data",JSON.stringify(items));
+    if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+    const r=await fetch(`${API}/report/generate`,{method:"POST",body:fd});
+    if(!r.ok){const t=await r.text();throw new Error(t||`HTTP ${r.status}`);}
+    return await r.json();
+  }
+
+  el.btnReportMeasure.addEventListener("click",async()=>{
+    if(!state.measurements.length){toast("No hay mediciones aún","warn");return;}
+    try{
+      toast("Generando informe…","ok");
+      const items=buildItems();
+      const pn=state.activeProject?.name||"";
+      const out=await genReport(items,"Informe de Medición",pn?"Proyecto: "+pn:"","all","measure");
+      state.last.files=out.files||{};
+      const totArea=items.reduce((a,b)=>a+b.area_m2,0);
+      aiBubble(`✅ Informe generado.\n• ${items.length} medición(es)\n• Área total: ${fmt(totArea,2)} m²\nUsa ⬇️ para descargar.`);
+      toast("Informe listo ✅","ok");
+    }catch(err){aiBubble("⛔ Error: "+err.message);toast("Error en informe","err");}
+  });
+
+  el.btnReportAnalysis.addEventListener("click",async()=>{
+    if(!state.image){toast("Carga un plano primero","warn");return;}
+    const items=buildItems();
+    const totArea=items.reduce((a,b)=>a+(b.area_m2||0),0);
+    const totPer=items.reduce((a,b)=>a+(b.perimetro_m||0),0);
+    const prompt=`Eres un ingeniero civil. Se realizaron estas mediciones en un plano:\n- Polilíneas: ${items.length}\n- Área total: ${fmt(totArea,2)} m²\n- Perímetro total: ${fmt(totPer,2)} m\nEscribe un análisis técnico breve (4-6 puntos) con observaciones y recomendaciones profesionales.`;
+    aiBubble("🧠 Solicitando análisis a GPT-4o…");
+    const fd=new FormData();
+    fd.append("message",prompt);fd.append("mode","measure");
+    if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+    if(state.file) fd.append("file",state.file,state.file.name);
+    try{
+      const r=await fetch(`${API}/chat`,{method:"POST",body:fd});
+      const d=await r.json();
+      aiBubble(d.response||"Sin respuesta");
+      const rItems=[{seccion:"Análisis IA",texto:d.response||""},...items];
+      const pn=state.activeProject?.name||"";
+      const out=await genReport(rItems,"Informe Análisis (GPT-4o)",pn,"all","measure");
+      state.last.files=out.files||{};
+      toast("Análisis + informe ✅","ok");
+    }catch(err){aiBubble("⛔ Error: "+err.message);toast("Error","err");}
+  });
+
+  async function dlFile(url,name){
+    const r=await fetch(url);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const blob=await r.blob();
+    const a=document.createElement("a");
+    const obj=URL.createObjectURL(blob);
+    a.href=obj;a.download=name;
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(obj),4000);
+  }
+
+  // ── Exportar chat a documento (100% navegador, sin backend) ──────────────────
+  function getChatMessages(){
+    const bubbles = el.aiLog.querySelectorAll(".bubble");
+    const msgs = [];
+    bubbles.forEach(b => {
+      const txt = (b.textContent || "").trim();
+      if(txt) msgs.push({ role: b.classList.contains("me") ? "usuario" : "ia", texto: txt });
+    });
+    return msgs;
+  }
+
+  function buildTextContent(msgs, measItems){
+    const pname = state.activeProject?.name || "";
+    const fecha  = new Date().toLocaleDateString("es",{year:"numeric",month:"long",day:"numeric"});
+    const plano  = state.file ? state.file.name : "—";
+    let out = "";
+    out += "═══════════════════════════════════════════════════════\n";
+    out += "     TÁCTICA INGENIERÍA — INFORME DE ANÁLISIS\n";
+    out += "═══════════════════════════════════════════════════════\n";
+    if(pname) out += `Proyecto : ${pname}\n`;
+    out += `Plano    : ${plano}\n`;
+    out += `Fecha    : ${fecha}\n`;
+    out += "───────────────────────────────────────────────────────\n\n";
+
+    if(msgs.length){
+      out += "ANÁLISIS IA — CONVERSACIÓN\n";
+      out += "───────────────────────────────────────────────────────\n";
+      msgs.forEach(m => {
+        if(m.role === "usuario"){
+          out += `\n▶ TÚ:\n${m.texto}\n`;
+        } else {
+          out += `\n● GPT-4o Vision:\n${m.texto}\n`;
+        }
+      });
+      out += "\n";
+    }
+
+    if(measItems.length){
+      out += "───────────────────────────────────────────────────────\n";
+      out += "MEDICIONES\n";
+      out += "───────────────────────────────────────────────────────\n";
+      measItems.forEach(m => {
+        out += `  • Polilínea #${m.item}  |  Perímetro: ${m.perimetro_m} m  |  Área: ${m.area_m2} m²\n`;
+      });
+      const totA = measItems.reduce((a,b)=>a+b.area_m2,0);
+      const totP = measItems.reduce((a,b)=>a+b.perimetro_m,0);
+      out += `\n  TOTAL  →  Área: ${totA.toFixed(2)} m²  |  Perímetro: ${totP.toFixed(2)} m\n`;
+    }
+
+    out += "\n═══════════════════════════════════════════════════════\n";
+    out += "Generado por TÁCTICA INGENIERÍA v2.0\n";
+    return out;
+  }
+
+  function buildCsvContent(msgs, measItems){
+    const rows = [];
+    rows.push(["Rol","Tipo","Contenido"]);
+    msgs.forEach(m => {
+      rows.push([
+        m.role === "usuario" ? "Tú" : "GPT-4o Vision",
+        m.role === "usuario" ? "Pregunta" : "Respuesta IA",
+        m.texto.replace(/\n/g," | ")
+      ]);
+    });
+    if(measItems.length){
+      rows.push(["","",""]);
+      rows.push(["","MEDICIONES",""]);
+      rows.push(["N°","Perímetro (m)","Área (m²)"]);
+      measItems.forEach(m => rows.push([m.item, m.perimetro_m, m.area_m2]));
+      const totA=measItems.reduce((a,b)=>a+b.area_m2,0);
+      const totP=measItems.reduce((a,b)=>a+b.perimetro_m,0);
+      rows.push(["TOTAL", totP.toFixed(2), totA.toFixed(2)]);
+    }
+    return rows.map(r => r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  }
+
+  function saveBlob(content, filename, mime){
+    const blob = new Blob(["\uFEFF" + content], {type: mime});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  }
+
+  function download(kind){
+    const msgs = getChatMessages();
+    const measItems = buildItems();
+    if(!msgs.length && !measItems.length){
+      toast("Escribe algo en el chat o haz mediciones primero","warn"); return;
+    }
+    const pn = (state.activeProject?.name || "informe").replace(/\s+/g,"_");
+    const ts = new Date().toISOString().slice(0,10);
+
+    if(kind === "word" || kind === "pdf"){
+      const pname = state.activeProject?.name || "";
+      const fecha  = new Date().toLocaleDateString("es",{year:"numeric",month:"long",day:"numeric"});
+      const plano  = state.file ? state.file.name : "—";
+      const proyecto = state.activeProjectId || "—";
+
+      const style = `
+        body{font-family:Calibri,Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;margin:2.5cm 3cm;line-height:1.6}
+        .cover-header{border-bottom:3px solid #1a1a1a;padding-bottom:10pt;margin-bottom:16pt}
+        .cover-header h1{font-size:15pt;font-weight:bold;margin:0 0 2pt 0;letter-spacing:.5pt;text-transform:uppercase}
+        .cover-header .sub{font-size:9pt;color:#555;font-style:italic}
+        .meta-table{width:100%;border-collapse:collapse;margin-bottom:18pt;font-size:9.5pt}
+        .meta-table td{padding:3pt 6pt;border:1px solid #ccc}
+        .meta-table td:first-child{font-weight:bold;background:#f5f5f5;width:30%;color:#333}
+        .section-title{font-size:11pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8pt;border-bottom:1.5px solid #333;padding-bottom:3pt;margin:20pt 0 10pt 0;color:#1a1a1a}
+        .msg-block{margin-bottom:10pt;padding:7pt 10pt;border:1px solid #ddd;border-radius:2pt}
+        .msg-block.usuario{border-left:3pt solid #333}
+        .msg-block.ia{border-left:3pt solid #888}
+        .msg-label{font-size:7.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8pt;color:#777;margin-bottom:3pt}
+        .msg-text{font-size:10pt;white-space:pre-wrap;color:#1a1a1a}
+        table.meas{width:100%;border-collapse:collapse;font-size:9.5pt;margin-top:8pt}
+        table.meas th{background:#1a1a1a;color:#fff;padding:5pt 8pt;text-align:left;font-weight:bold;font-size:9pt;text-transform:uppercase;letter-spacing:.3pt}
+        table.meas td{padding:4pt 8pt;border-bottom:1px solid #e0e0e0;color:#1a1a1a}
+        table.meas tr:last-child td{border-bottom:none}
+        .total-row td{font-weight:bold;border-top:2px solid #333;background:#f9f9f9}
+        .footer{margin-top:30pt;padding-top:6pt;border-top:1px solid #ccc;font-size:8pt;color:#888;text-align:center}
+        p{margin:0 0 4pt 0}
+      `;
+
+      let body = `
+        <div class="cover-header">
+          <h1>Táctica Ingeniería</h1>
+          <div class="sub">Informe Técnico de Análisis — Generado automáticamente</div>
+        </div>
+
+        <table class="meta-table">
+          <tr><td>Proyecto</td><td>${pname || "—"}</td></tr>
+          <tr><td>Plano analizado</td><td>${plano}</td></tr>
+          <tr><td>Fecha</td><td>${fecha}</td></tr>
+          <tr><td>Generado por</td><td>TÁCTICA INGENIERÍA v2.0 — GPT-4o Vision</td></tr>
+        </table>`;
+
+      if(msgs.length){
+        body += `<div class="section-title">Análisis IA — Conversación</div>`;
+        msgs.forEach(m => {
+          const cls = m.role === "usuario" ? "usuario" : "ia";
+          const lbl = m.role === "usuario" ? "Pregunta del usuario" : "Respuesta GPT-4o Vision";
+          const txt = m.texto.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+          body += `<div class="msg-block ${cls}">
+            <div class="msg-label">${lbl}</div>
+            <div class="msg-text">${txt}</div>
+          </div>`;
+        });
+      }
+
+      if(measItems.length){
+        const totA = measItems.reduce((a,b)=>a+b.area_m2,0);
+        const totP = measItems.reduce((a,b)=>a+b.perimetro_m,0);
+        body += `<div class="section-title">Mediciones registradas</div>
+          <table class="meas">
+            <thead><tr><th>N°</th><th>Perímetro (m)</th><th>Área (m²)</th><th>Puntos</th></tr></thead>
+            <tbody>`;
+        measItems.forEach(m => {
+          body += `<tr>
+            <td>${m.item}</td>
+            <td>${m.perimetro_m}</td>
+            <td>${m.area_m2}</td>
+            <td>${m.puntos}</td>
+          </tr>`;
+        });
+        body += `</tbody>
+            <tfoot><tr class="total-row">
+              <td>Total</td>
+              <td>${totP.toFixed(2)} m</td>
+              <td>${totA.toFixed(2)} m²</td>
+              <td>—</td>
+            </tr></tfoot>
+          </table>`;
+      }
+
+      body += `<div class="footer">
+        Táctica Ingeniería · ${fecha} · Documento generado con GPT-4o Vision
+      </div>`;
+
+      const fullHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+        xmlns:w='urn:schemas-microsoft-com:office:word'>
+        <head><meta charset='utf-8'><style>${style}</style></head>
+        <body>${body}</body></html>`;
+
+      saveBlob(fullHtml, `TACTICA_${pn}_${ts}.doc`, "application/msword");
+      toast("✅ Documento descargado — ábrelo con Word","ok");
+
+    } else if(kind === "excel"){
+      // Excel: CSV con BOM utf-8, Excel lo abre directo
+      const csv = buildCsvContent(msgs, measItems);
+      saveBlob(csv, `TACTICA_${pn}_${ts}.csv`, "text/csv;charset=utf-8");
+      toast("✅ Excel descargado — ábrelo con Excel","ok");
+    }
+  }
+  el.dlPdf.addEventListener("click",()=>download("pdf"));
+  el.dlExcel.addEventListener("click",()=>download("excel"));
+  el.dlWord.addEventListener("click",()=>download("word"));
+
+  // ── Chat ──────────────────────────────────────────────────────
+  async function sendChat(){
+    const msg=(el.cmdInput.value||"").trim();
+    if(!msg){toast("Escribe algo","warn");return;}
+    el.cmdInput.value="";
+    aiBubble("Tú: "+msg,true);
+    const fd=new FormData();
+    fd.append("message",msg);fd.append("mode","measure");
+    if(state.activeProjectId) fd.append("project_id",state.activeProjectId);
+    if(state.file) fd.append("file",state.file,state.file.name);
+    try{
+      const r=await fetch(`${API}/chat`,{method:"POST",body:fd});
+      const d=await r.json();
+      if(!r.ok){aiBubble("⛔ Error "+r.status+": "+(d.detail||d.response||""));return;}
+      aiBubble(d.response||JSON.stringify(d));
+    }catch(err){aiBubble("⛔ Error de red: "+err.message);}
+  }
+  el.cmdSend.addEventListener("click",sendChat);
+  el.cmdInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat();}});
+
+  el.btnToggleLog.addEventListener("click",()=>{
+    const on=el.sysLog.style.display!=="none";
+    el.sysLog.style.display=on?"none":"block";
+    el.btnToggleLog.classList.toggle("primary",!on);
+  });
+
+  // ── Init ──────────────────────────────────────────────────────
+  renderMeasurementsList();setTool("none");setScalePill();resizeCanvas();
+  checkHealth();
+  loadProjects().then(()=>{
+    aiBubble("Listo. Carga un plano con 📎, calibra la escala con 🎯 y mide con 📏.");
+    toast("Bienvenido a TACTICA INGENIERIA","ok");
+  }).catch(()=>{
+    toast("Backend no disponible","warn",5000);
+    aiBubble("⚠️ No se pudo conectar con el backend. El visor funciona en modo offline.");
+  });
+})();
+</script>
+</body>
+</body>
+</html>

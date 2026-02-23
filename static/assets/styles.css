@@ -1,0 +1,86 @@
+﻿/* ===== VARIABLES CSS (THEMES: LIGHT / DARK) ===== */
+:root {
+  /* Paleta principal */
+  --primary: #00E5FF;
+  --primary-dark: #00B8D4;
+  --primary-light: #62EFFF;
+  --secondary: #6b7280;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #00E5FF;
+
+  /* Grises (valores neutros para tema claro) */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Backgrounds (light defaults) */
+  --bg-var: var(--gray-50);
+  --panel-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --muted: var(--gray-500);
+  --text: #0b1220;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+  --shadow-lg: 0 12px 30px rgba(2,6,23,0.12);
+  --shadow-xl: 0 20px 50px rgba(2,6,23,0.14);
+
+  /* Borders & radius */
+  --border-radius: 10px;
+  --border-radius-sm: 6px;
+  --border: 1px solid rgba(15,23,42,0.06);
+
+  /* Transitions */
+  --transition: 180ms ease;
+}
+
+/* Botones principales con azul fluorescente mate */
+.btn-primary, button.primary, .button-primary {
+  background: linear-gradient(135deg, #00E5FF 0%, #00B8D4 100%);
+  color: #0b1220;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
+}
+
+.btn-primary:hover, button.primary:hover, .button-primary:hover {
+  background: linear-gradient(135deg, #00B8D4 0%, #00E5FF 100%);
+  box-shadow: 0 6px 20px rgba(0, 229, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Links y elementos interactivos */
+a, .link {
+  color: #00E5FF;
+  transition: var(--transition);
+}
+
+a:hover, .link:hover {
+  color: #00B8D4;
+}
+
+/* Iconos y badges */
+.badge-primary, .icon-primary {
+  background-color: #00E5FF;
+  color: #0b1220;
+}
+
+/* Bordes activos */
+.active, .selected {
+  border-color: #00E5FF !important;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.2);
+}

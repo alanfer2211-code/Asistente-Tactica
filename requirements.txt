@@ -1,0 +1,27 @@
+# Táctica Ingeniería — Dependencias v3.0
+# Instalar: pip install -r requirements.txt
+
+# === Core ===
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.19
+
+# === IA ===
+openai==1.58.1
+
+# === Procesamiento de imágenes/PDF ===
+Pillow==11.1.0
+PyMuPDF==1.25.3
+
+# === Reportes ===
+openpyxl==3.1.5
+reportlab==4.2.5
+pandas==2.2.3
+
+# === Gráficos estilo Power BI ===
+matplotlib==3.10.0
+
+# === VPS / Producción ===
+gunicorn==23.0.0
+python-dotenv==1.0.1
+python-docx==1.1.2
